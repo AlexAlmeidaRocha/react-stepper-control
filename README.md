@@ -18,7 +18,7 @@ npm i react-stepper-control
 
 Here’s an example of how to use React Stepper Control to create a multi-step form:
 
-```bash
+```JSX
 import { StepConfiguration, useSteps, StepsWithProvider, VerticalStepper, HorizontalStepper } from "react-stepper-control";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
