@@ -1,0 +1,97 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stepsContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.stepItem {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.stepButton {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: center;
+}
+
+.stepButton[disabled] {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.stepIndicator {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 16px;
+  font-weight: bold;
+  border: 2px solid #ccc;
+}
+
+.stepIndicator.active {
+  border-color: blue;
+  background-color: lightblue;
+}
+
+.stepIndicator.completed {
+  border-color: green;
+  background-color: lightgreen;
+}
+
+.stepIndicator.disabled {
+  border-color: #ccc;
+}
+
+.stepLabel {
+  font-size: 14px;
+}
+
+.connector {
+  width: 50px;
+  height: 2px;
+  background-color: #ccc;
+}
+
+.connector.active {
+  background-color: blue;
+}
+
+.connector.completed {
+  background-color: green;
+}
+
+.stepContent {
+  margin-top: 16px;
+  padding: 16px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  width: 100%;
+  max-width: 600px;
+}
