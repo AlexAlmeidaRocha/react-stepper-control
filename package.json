@@ -23,6 +23,7 @@
     "@types/react": "^17.0.55",
     "@types/react-dom": "^17.0.22",
     "postcss": "^8.4.49",
+    "prettier": "3.4.2",
     "rollup": "^4.28.0",
     "rollup-plugin-peer-deps-external": "^2.2.4",
     "rollup-plugin-postcss": "^4.0.2",
