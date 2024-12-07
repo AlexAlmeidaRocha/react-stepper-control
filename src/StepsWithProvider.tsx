@@ -9,9 +9,8 @@ import { StepProviderProps } from './types/StepTypes';
  * @returns A new component with the StepsProvider as context.
  */
 
-
 export const StepsWithProvider = <P extends object>(
-  Component: React.ComponentType<P>
+  Component: React.ComponentType<P>,
 ) => {
   return function WrapperComponent(props: P & Partial<StepProviderProps<any>>) {
     const { initialConfig, ...rest } = props;

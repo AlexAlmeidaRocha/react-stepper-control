@@ -20,7 +20,13 @@ import styles from './VerticalStepper.module.css';
  * ```
  */
 
-export const VerticalStepper = ({ steps, title }: { steps: StepConfiguration[]; title?: string }) => {
+export const VerticalStepper = ({
+  steps,
+  title,
+}: {
+  steps: StepConfiguration[];
+  title?: string;
+}) => {
   const { activeStep, goToStep } = useSteps({ steps });
 
   const handleStepClick = (index: number) => {
@@ -59,7 +65,9 @@ export const VerticalStepper = ({ steps, title }: { steps: StepConfiguration[]; 
                   </span>
                   <span className={styles.stepLabel}>{step.name}</span>
                 </button>
-                {isActive && <div className={styles.stepContent}>{step.component}</div>}
+                {isActive && (
+                  <div className={styles.stepContent}>{step.component}</div>
+                )}
               </li>
             );
           })}

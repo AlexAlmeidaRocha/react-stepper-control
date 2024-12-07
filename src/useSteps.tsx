@@ -1,6 +1,6 @@
-import { useContext, useEffect } from "react";
-import { ConfigProps, StepContextProps } from "./types/StepTypes";
-import { StepsContext } from "./StepsContext";
+import { useContext, useEffect } from 'react';
+import { ConfigProps, StepContextProps } from './types/StepTypes';
+import { StepsContext } from './StepsContext';
 
 /**
  * Custom hook to access the steps context (StepsContext).
@@ -62,7 +62,9 @@ export const useSteps = <T,>(config?: ConfigProps) => {
     let initialized = false;
 
     if (!initialized && config) {
-      Object.entries(config).forEach(([key, value]) => updateConfig(key, value));
+      Object.entries(config).forEach(([key, value]) =>
+        updateConfig(key, value),
+      );
       if (config.steps) setStepsInfo(config.steps);
       initialized = true;
     }

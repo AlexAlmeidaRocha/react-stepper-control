@@ -20,7 +20,13 @@ import styles from './HorizontalStepper.module.css';
  * ```
  */
 
-export const HorizontalStepper = ({ steps, title }: { steps: StepConfiguration[]; title?: string }) => {
+export const HorizontalStepper = ({
+  steps,
+  title,
+}: {
+  steps: StepConfiguration[];
+  title?: string;
+}) => {
   const { activeStep, goToStep } = useSteps({ steps });
 
   const handleStepClick = (index: number) => {
@@ -59,7 +65,9 @@ export const HorizontalStepper = ({ steps, title }: { steps: StepConfiguration[]
                   </span>
                   <span className={styles.stepLabel}>{step.name}</span>
                 </button>
-                {index < steps.length - 1 && <div className={styles.connector}></div>}
+                {index < steps.length - 1 && (
+                  <div className={styles.connector}></div>
+                )}
               </div>
             );
           })}
