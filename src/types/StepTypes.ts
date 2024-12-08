@@ -57,7 +57,7 @@ export interface StepContextProps<T> {
     args: UpdateGeneralStateInput<T>,
   ) => StepsContextState<T>;
   updateConfig: (key: string, data: T) => void;
-  updateStep: (updateSteps: UpdateStepInput) => StepsContextState<T>;
+  updateSteps: (updateSteps: UpdateStepInput[]) => StepsContextState<T>;
   setStepsInfo: (steps: StepConfiguration[]) => void;
 }
 
@@ -66,7 +66,7 @@ export interface UseStepNavigationProps<T> {
   setCurrentStep: React.Dispatch<React.SetStateAction<number>>;
   state: StepsContextState<T>;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
-  updateStep: (updateSteps: UpdateStepInput) => StepsContextState<T>;
+  updateSteps: (updateSteps: UpdateStepInput[]) => StepsContextState<T>;
   updateGeneralInfo: (data: Partial<GeneralInfoProps>) => GeneralInfoProps;
   updateGeneralState: (
     input: UpdateGeneralStateInput<T>,
@@ -117,7 +117,7 @@ type AddErrorPayload = { stepIndex: number; message: string };
 
 export type StepActionProps =
   | { type: ActionTypes.SET_STEPS; payload: StepConfiguration[] }
-  | { type: ActionTypes.UPDATE_STEP; payload: UpdateStepPayload }
+  | { type: ActionTypes.UPDATE_STEP; payload: UpdateStepPayload[] }
   | {
       type: ActionTypes.UPDATE_GENERAL_STATE;
       payload: UpdateGeneralStatePayload;

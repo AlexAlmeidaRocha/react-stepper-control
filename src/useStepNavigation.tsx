@@ -11,7 +11,7 @@ export const useStepNavigation = <T,>({
   setCurrentStep,
   state,
   setLoading,
-  updateStep,
+  updateSteps,
   updateGeneralInfo,
   updateGeneralState,
   addError,
@@ -19,10 +19,11 @@ export const useStepNavigation = <T,>({
   const onNext = useCallback(
     async (args?: {
       onCompleteStep?: StepStateCallback<T>;
-      updateSteps?: UpdateStepInput[];
+      updateStepsRequest?: UpdateStepInput[];
       updateGeneralStates?: UpdateGeneralStateInput<T>;
     }) => {
-      const { onCompleteStep, updateSteps, updateGeneralStates } = args || {};
+      const { onCompleteStep, updateStepsRequest, updateGeneralStates } =
+        args || {};
       setLoading(true);
 
       try {
@@ -31,16 +32,17 @@ export const useStepNavigation = <T,>({
           currentState = updateGeneralState(updateGeneralStates);
         }
 
-        const updatedSteps = currentState.steps;
-        updateSteps?.forEach((step) => {
-          const update = updateStep(step);
-          updatedSteps[step.stepIndex] = update.steps[step.stepIndex];
-        });
-
-        const updateStepResponse = updateStep({
-          stepIndex: currentStep,
-          data: { touch: true, canAccess: true, isCompleted: true },
-        });
+        const updateStepsResponse = updateSteps([
+          {
+            stepIndex: currentStep,
+            data: { touch: true, canAccess: true, isCompleted: true },
+          },
+          {
+            stepIndex: currentStep + 1,
+            data: { touch: true, canAccess: true },
+          },
+          ...(updateStepsRequest || []),
+        ]);
 
         const updateGeneralInfoResponse = updateGeneralInfo({
           progress: (currentStep + 1) / currentState.generalInfo.totalSteps,
@@ -48,7 +50,7 @@ export const useStepNavigation = <T,>({
 
         currentState = {
           ...currentState,
-          steps: updateStepResponse.steps,
+          steps: updateStepsResponse.steps,
           generalInfo: updateGeneralInfoResponse,
         };
 
@@ -77,14 +79,6 @@ export const useStepNavigation = <T,>({
       setLoading(false);
     }
 
-    // dispatch({
-    //   type: ActionTypes.UPDATE_STEP,
-    //   payload: {
-    //     stepIndex: currentStep,
-    //     data: { touch: true, canAccess: true },
-    //   },
-    // });
-
     setCurrentStep((prev) => Math.max(prev - 1, 0));
   };
 
@@ -93,26 +87,23 @@ export const useStepNavigation = <T,>({
       nextStep: number,
       args?: {
         onCompleteStep?: StepStateCallback<T>;
-        updateSteps?: UpdateStepInput[];
+        updateStepsRequest?: UpdateStepInput[];
         updateGeneralStates?: { stepIndex?: number; data: Partial<T> };
       },
     ) => {
       if (nextStep === currentStep) return;
-      const { onCompleteStep, updateSteps, updateGeneralStates } = args || {};
+      const { onCompleteStep, updateStepsRequest, updateGeneralStates } =
+        args || {};
 
       if (nextStep > state.generalInfo.totalSteps - 1) {
-        addError(
-          currentStep,
-          `The step ${nextStep} does not exist. There are only ${state.generalInfo.totalSteps} steps.`,
-        );
-        return;
+        throw new Error(`The step ${nextStep} does not exist.`);
       }
 
       if (nextStep > currentStep) {
         if (!state.steps[nextStep].canAccess) {
           addError(
             currentStep,
-            `The step ${nextStep} is not accessible because it has not been completed or is locked.`,
+            `The step ${nextStep} is not accessible because it is not access.`,
           );
           return;
         }
@@ -126,16 +117,7 @@ export const useStepNavigation = <T,>({
           currentState = updateGeneralState(updateGeneralStates);
         }
 
-        const updatedSteps = currentState.steps;
-        updateSteps?.forEach((step) => {
-          const update = updateStep(step);
-          updatedSteps[step.stepIndex] = update.steps[step.stepIndex];
-        });
-
-        const updateStepResponse = updateStep({
-          stepIndex: currentStep,
-          data: { touch: true, canAccess: true, isCompleted: true },
-        });
+        const updateStepsResponse = updateSteps(updateStepsRequest || []);
 
         const updateGeneralInfoResponse = updateGeneralInfo({
           progress: (nextStep + 1) / currentState.generalInfo.totalSteps,
@@ -143,7 +125,7 @@ export const useStepNavigation = <T,>({
 
         currentState = {
           ...currentState,
-          steps: updateStepResponse.steps,
+          steps: updateStepsResponse.steps,
           generalInfo: updateGeneralInfoResponse,
         };
 

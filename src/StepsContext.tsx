@@ -31,7 +31,7 @@ export const StepsProvider = <T,>({
 
   const {
     setStepsInfo,
-    updateStep,
+    updateSteps,
     updateGeneralState,
     updateGeneralInfo,
     addError,
@@ -43,7 +43,7 @@ export const StepsProvider = <T,>({
     setCurrentStep,
     state,
     setLoading,
-    updateStep,
+    updateSteps,
     updateGeneralInfo,
     updateGeneralState,
     addError,
@@ -66,7 +66,7 @@ export const StepsProvider = <T,>({
         updateGeneralState,
         updateConfig,
         setStepsInfo,
-        updateStep,
+        updateSteps,
       }}
     >
       {children}

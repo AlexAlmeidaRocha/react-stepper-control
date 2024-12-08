@@ -33,10 +33,13 @@ const StepsReducer = <T,>(
 
     case ActionTypes.UPDATE_STEP: {
       const updatedSteps = [...state.steps];
-      updatedSteps[action.payload.stepIndex] = {
-        ...updatedSteps[action.payload.stepIndex],
-        ...action.payload.data,
-      };
+      action.payload.forEach(({ stepIndex, data }) => {
+        updatedSteps[stepIndex] = {
+          ...updatedSteps[stepIndex],
+          ...data,
+        };
+      });
+
       return { ...state, steps: updatedSteps };
     }
 

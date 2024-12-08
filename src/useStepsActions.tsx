@@ -4,10 +4,8 @@ import {
   GeneralInfoProps,
   UpdateGeneralStateInput,
   UpdateStepInput,
-  StepActionProps,
   StepConfiguration,
   StepStateProps,
-  ConfigProps,
   UseStepsActionsProps,
 } from './types/StepTypes';
 import { ActionTypes } from './StepsReducer';
@@ -27,18 +25,8 @@ export const useStepsActions = <T,>({
       stepIndex = currentStep,
       data,
     }: UpdateGeneralStateInput<T>): StepsContextState<T> => {
-      // Pensar em um forma de validar para não salvar/atualizar dados inválidos
-      if (!state.generalState) {
-        return state;
-        // throw new Error('O estado geral não foi inicializado.');
-      }
-      // const validKeys = Object.keys(state.generalState) as (keyof T)[];
-      // const isValidData = Object.keys(data).every((key) => validKeys.includes(key as keyof T));
-
-      // if (!isValidData) {
-      // 	throw new Error(
-      // 		`Dados inválidos fornecidos: ${JSON.stringify(data)}. As chaves válidas são: ${validKeys.join(', ')}`
-      // 	);
+      // if (stepIndex < 0 || stepIndex >= state.steps.length) {
+      //   throw new Error(`Invalid stepIndex: ${stepIndex}.`);
       // }
 
       // const newState: StepsContextState<T> = {
@@ -75,9 +63,8 @@ export const useStepsActions = <T,>({
     [state.generalInfo],
   );
 
-  const updateStep = useCallback(
-    (updateSteps: UpdateStepInput): StepsContextState<T> => {
-      const { stepIndex, data } = updateSteps;
+  const updateSteps = useCallback(
+    (updates: UpdateStepInput[]): StepsContextState<T> => {
       const validKeys: (keyof StepStateProps)[] = [
         'touch',
         'canAccess',
@@ -85,26 +72,40 @@ export const useStepsActions = <T,>({
         'isOptional',
         'isCompleted',
       ];
-      const isValidData = Object.keys(data).every((key) =>
-        validKeys.includes(key as keyof StepStateProps),
-      );
 
-      if (!isValidData) {
-        throw new Error(
-          `Invalid data provided: ${JSON.stringify(data)}. Valid keys are: ${validKeys.join(', ')}`,
+      updates.forEach(({ data }) => {
+        const isValidData = Object.keys(data).every((key) =>
+          validKeys.includes(key as keyof StepStateProps),
         );
-      }
+
+        if (!isValidData) {
+          throw new Error(
+            `Invalid data provided: ${JSON.stringify(data)}. Valid keys are: ${validKeys.join(', ')}`,
+          );
+        }
+      });
 
       const updatedSteps = [...state.steps];
-      updatedSteps[stepIndex] = {
-        ...updatedSteps[stepIndex],
-        ...data,
-      };
+      updates.forEach(({ stepIndex, data }) => {
+        if (stepIndex < 0 || stepIndex >= updatedSteps.length) {
+          throw new Error(`Invalid stepIndex: ${stepIndex}.`);
+        }
+        updatedSteps[stepIndex] = {
+          ...updatedSteps[stepIndex],
+          ...data,
+        };
+      });
+
       const newState = {
         ...state,
         steps: updatedSteps,
       };
-      dispatch({ type: ActionTypes.UPDATE_STEP, payload: { stepIndex, data } });
+
+      dispatch({
+        type: ActionTypes.UPDATE_STEP,
+        payload: updates,
+      });
+
       return newState;
     },
     [currentStep, state],
@@ -130,7 +131,7 @@ export const useStepsActions = <T,>({
     setStepsInfo,
     updateGeneralState,
     updateGeneralInfo,
-    updateStep,
+    updateSteps,
     addError,
     updateConfig,
   };
