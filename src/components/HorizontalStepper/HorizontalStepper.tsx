@@ -23,17 +23,18 @@ import styles from './HorizontalStepper.module.css';
 export const HorizontalStepper = ({
   steps,
   title,
+  config,
 }: {
   steps: StepConfiguration[];
   title?: string;
-}) => {
-  const { activeStep, goToStep } = useSteps({ steps });
-
-  const handleStepClick = (index: number) => {
-    if (index <= activeStep.index) {
-      goToStep(index);
-    }
+  config?: {
+    validations?: {
+      canAcess?: boolean;
+      isCompleted?: boolean;
+    };
   };
+}) => {
+  const { activeStep, goToStep, stepsState } = useSteps({ steps, config });
 
   return (
     <div className={styles.wrapper} role="navigation" aria-label={title}>
@@ -44,30 +45,42 @@ export const HorizontalStepper = ({
       )}
       <div className={styles.content}>
         <div className={styles.stepsContainer}>
-          {steps.map((step, index) => {
+          {stepsState.steps?.map((step, index) => {
             const isActive = activeStep.index === index;
-            const isCompleted = activeStep.index > index;
+
+            const stepClass = `
+              ${styles.stepIndicator} 
+              ${step.isCompleted ? styles.completed : ''}
+              ${isActive && step.isOptional ? styles.optional : ''}
+              ${step.canAccess ? styles.canAccess : ''}
+              ${isActive ? styles.active : ''}
+              ${
+                step.canAccess && !isActive && !step.isCompleted
+                  ? styles.touch
+                  : ''
+              }
+            `;
 
             return (
-              <div
-                key={index}
-                className={`${styles.stepItem} ${isActive ? styles.active : isCompleted ? styles.completed : styles.disabled}`}
-              >
+              <div key={index} className={styles.stepItem}>
                 <button
                   className={styles.stepButton}
-                  onClick={() => handleStepClick(index)}
-                  disabled={index > activeStep.index}
+                  onClick={() => goToStep(index)}
+                  disabled={!step.isCompleted && !step.canAccess}
                   aria-current={isActive ? 'step' : undefined}
-                  aria-disabled={index > activeStep.index}
+                  aria-disabled={!step.isCompleted}
                 >
-                  <span className={styles.stepIndicator}>
-                    {isCompleted ? '✔' : index + 1}
+                  <span className={stepClass}>
+                    {isActive ? index + 1 : step.isCompleted ? '✔' : index + 1}
                   </span>
-                  <span className={styles.stepLabel}>{step.name}</span>
+                  <span
+                    className={`${styles.stepLabel} ${
+                      isActive ? styles.active : ''
+                    }`}
+                  >
+                    {step.name}
+                  </span>
                 </button>
-                {index < steps.length - 1 && (
-                  <div className={styles.connector}></div>
-                )}
               </div>
             );
           })}

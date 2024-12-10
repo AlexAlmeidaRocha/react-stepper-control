@@ -95,3 +95,13 @@
   width: 100%;
   max-width: 600px;
 }
+
+.stepIndicator.optional {
+  border-color: orange;
+  background-color: lightyellow;
+}
+
+.stepIndicator.canAccess {
+  border-color: purple;
+  background-color: lavender;
+}
