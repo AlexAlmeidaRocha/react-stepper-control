@@ -34,7 +34,7 @@ export const HorizontalStepper = ({
     };
   };
 }) => {
-  const { activeStep, goToStep, stepsState } = useSteps({ steps, config });
+  const { activeStep, goToStep, stepsState } = useSteps({ steps, ...config });
 
   return (
     <div className={styles.wrapper} role="navigation" aria-label={title}>

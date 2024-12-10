@@ -62,7 +62,7 @@ export const useSteps = <T,>(config?: ConfigProps) => {
     let initialized = false;
 
     if (!initialized && config) {
-      updateConfig(config.config || {});
+      updateConfig(config || {});
 
       if (config.steps) setStepsInfo(config.steps);
       initialized = true;

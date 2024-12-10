@@ -90,14 +90,17 @@ export type UpdateGeneralStateInput<T> = {
   data: Partial<T>;
 };
 
-export interface ConfigProps {
+export interface ConfigProps extends StateConfigProps {
   steps: StepConfiguration[];
-  config?: StateConfigProps;
 }
 
 export interface StateConfigProps {
   validations?: {
-    canAcess?: boolean;
+    canAccess?: boolean;
+    isCompleted?: boolean;
+  };
+  next?: {
+    canAccess?: boolean;
     isCompleted?: boolean;
   };
 }

@@ -13,7 +13,7 @@ export const useStepNavigation = <T,>({
   updateStepsState,
   setLoading,
   addError,
-  config
+  config,
 }: UseStepNavigationProps<T>) => {
   const onNext = useCallback(
     async (args?: {
@@ -41,7 +41,10 @@ export const useStepNavigation = <T,>({
           ...currentState,
           steps: [
             ...updatedStepsStatus.map((step, index) => {
-              if (index === currentStep) {
+              if (
+                config?.validations?.isCompleted &&
+                index === currentStep
+              ) {
                 return {
                   ...step,
                   canAccess: true,
@@ -49,7 +52,10 @@ export const useStepNavigation = <T,>({
                 };
               }
 
-              if (index === currentStep + 1) {
+              if (
+                config?.validations?.canAccess &&
+                index === currentStep + 1
+              ) {
                 return {
                   ...step,
                   canAccess: true,
@@ -117,7 +123,7 @@ export const useStepNavigation = <T,>({
       }
 
       if (nextStep > currentStep) {
-        if (!stepsState.steps[nextStep].canAccess) {
+        if (config?.next?.canAccess && !stepsState.steps[nextStep].canAccess) {
           addError(
             currentStep,
             `The step ${nextStep} is not accessible because it is not access.`,

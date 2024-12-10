@@ -3,6 +3,7 @@ import {
   StepsContextState,
   StepContextProps,
   StepProviderProps,
+  ConfigProps,
 } from './types/StepTypes';
 import { useStepsActions } from './useStepsActions';
 import { useStepNavigation } from './useStepNavigation';
@@ -14,20 +15,30 @@ const initialState: StepsContextState<any> = {
   errors: [],
 };
 
+const defaultConfig: ConfigProps = {
+  steps: [],
+  validations: {
+    canAccess: true,
+    isCompleted: true,
+  },
+  next: {
+    canAccess: true,
+    isCompleted: true,
+  },
+};
+
 export const StepsContext = React.createContext<StepContextProps<any> | null>(
   null,
 );
 
 export const StepsProvider = <T,>({
   children,
-  initialConfig = {
-    steps: [],
-  },
+  initialConfig = defaultConfig,
 }: StepProviderProps<T>) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [stepsState, updateStepsState] = useState(initialState);
-  const [config, setConfig] = useState(initialConfig);
+  const [config, setConfig] = useState<ConfigProps>(initialConfig);
 
   const {
     setStepsInfo,
