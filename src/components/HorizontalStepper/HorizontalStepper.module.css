@@ -17,6 +17,7 @@
 
 .stepsContainer {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: center;
   gap: 8px;
@@ -57,20 +58,29 @@
 
 .stepIndicator.active {
   border-color: blue;
-  background-color: lightblue;
+  color: blue;
 }
 
 .stepIndicator.completed {
   border-color: green;
-  background-color: lightgreen;
+  color: green;
 }
 
 .stepIndicator.disabled {
   border-color: #ccc;
 }
 
+.stepIndicator.touch {
+  border-color: yellow;
+}
+
 .stepLabel {
   font-size: 14px;
+}
+
+.stepLabel.active {
+  font-size: 14px;
+  color: black;
 }
 
 .connector {
@@ -92,16 +102,11 @@
   padding: 16px;
   border: 1px solid #ddd;
   border-radius: 4px;
-  width: 100%;
-  max-width: 600px;
+  height: 100%;
+  box-sizing: border-box;
 }
 
 .stepIndicator.optional {
   border-color: orange;
-  background-color: lightyellow;
-}
-
-.stepIndicator.canAccess {
-  border-color: purple;
-  background-color: lavender;
+  color: black;
 }

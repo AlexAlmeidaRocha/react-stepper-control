@@ -1,4 +1,4 @@
-import { StepConfiguration } from '../../types/StepTypes';
+import { StateConfigProps, StepConfiguration } from '../../types/StepTypes';
 import { useSteps } from '../../useSteps';
 import styles from './HorizontalStepper.module.css';
 
@@ -27,12 +27,7 @@ export const HorizontalStepper = ({
 }: {
   steps: StepConfiguration[];
   title?: string;
-  config?: {
-    validations?: {
-      canAcess?: boolean;
-      isCompleted?: boolean;
-    };
-  };
+  config?: StateConfigProps;
 }) => {
   const { activeStep, goToStep, stepsState } = useSteps({ steps, ...config });
 

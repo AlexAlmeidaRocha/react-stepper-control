@@ -114,7 +114,7 @@ export const useStepsActions = <T,>({
   const updateConfig = useCallback((config: StateConfigProps) => {
     setConfig((prev) => ({
       ...prev,
-      config,
+      ...config,
     }));
   }, []);
 

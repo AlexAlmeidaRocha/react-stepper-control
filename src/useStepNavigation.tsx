@@ -41,10 +41,7 @@ export const useStepNavigation = <T,>({
           ...currentState,
           steps: [
             ...updatedStepsStatus.map((step, index) => {
-              if (
-                config?.validations?.isCompleted &&
-                index === currentStep
-              ) {
+              if (config?.validations?.isCompleted && index === currentStep) {
                 return {
                   ...step,
                   canAccess: true,
@@ -52,10 +49,7 @@ export const useStepNavigation = <T,>({
                 };
               }
 
-              if (
-                config?.validations?.canAccess &&
-                index === currentStep + 1
-              ) {
+              if (config?.validations?.canAccess && index === currentStep + 1) {
                 return {
                   ...step,
                   canAccess: true,
