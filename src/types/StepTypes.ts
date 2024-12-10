@@ -1,5 +1,3 @@
-import { ActionTypes } from '../StepsReducer';
-
 export interface GeneralInfoProps {
   totalSteps: number;
   progress: number;
@@ -7,7 +5,6 @@ export interface GeneralInfoProps {
 
 export interface StepStateProps {
   name: string;
-  touch: boolean;
   canAccess: boolean;
   canEdit: boolean;
   isOptional: boolean;
@@ -39,7 +36,7 @@ export interface StepContextProps<T> {
   activeStep: ActiveStepProps;
   onNext: (args?: {
     onCompleteStep?: StepStateCallback<T>;
-    updateSteps?: UpdateStepInput[];
+    updateStepsStatus?: UpdateStepInput[];
     updateGeneralStates?: UpdateGeneralStateInput<T>;
   }) => void;
   onPrev: (callback?: StepStateCallback<T>) => void;
@@ -47,16 +44,16 @@ export interface StepContextProps<T> {
     nextStep: number,
     args?: {
       onCompleteStep?: StepStateCallback<T>;
-      updateSteps?: UpdateStepInput[];
+      updateStepsStatus?: UpdateStepInput[];
       updateGeneralStates?: UpdateGeneralStateInput<T>;
     },
   ) => void;
   loading: boolean;
-  stepState: StepsContextState<T>;
+  stepsState: StepsContextState<T>;
   updateGeneralState: (
     args: UpdateGeneralStateInput<T>,
   ) => StepsContextState<T>;
-  updateConfig: (key: string, data: T) => void;
+  updateConfig: (config: StateConfigProps) => void;
   updateSteps: (updateSteps: UpdateStepInput[]) => StepsContextState<T>;
   setStepsInfo: (steps: StepConfiguration[]) => void;
 }
@@ -64,19 +61,16 @@ export interface StepContextProps<T> {
 export interface UseStepNavigationProps<T> {
   currentStep: number;
   setCurrentStep: React.Dispatch<React.SetStateAction<number>>;
-  state: StepsContextState<T>;
+  stepsState: StepsContextState<T>;
+  updateStepsState: React.Dispatch<React.SetStateAction<StepsContextState<T>>>;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
-  updateSteps: (updateSteps: UpdateStepInput[]) => StepsContextState<T>;
-  updateGeneralInfo: (data: Partial<GeneralInfoProps>) => GeneralInfoProps;
-  updateGeneralState: (
-    input: UpdateGeneralStateInput<T>,
-  ) => StepsContextState<T>;
   addError: (stepIndex: number, message: string) => void;
+  config: ConfigProps;
 }
 
 export interface UseStepsActionsProps<T> {
-  dispatch: React.Dispatch<StepActionProps>;
-  state: StepsContextState<T>;
+  updateStepsState: React.Dispatch<React.SetStateAction<StepsContextState<T>>>;
+  stepsState: StepsContextState<T>;
   currentStep: number;
   setConfig: React.Dispatch<React.SetStateAction<ConfigProps>>;
 }
@@ -88,10 +82,7 @@ export type StepStateCallback2<T> = (formData: T) => Promise<void> | void;
 export type UpdateStepInput = {
   stepIndex: number;
   data: Partial<
-    Pick<
-      StepStateProps,
-      'canAccess' | 'canEdit' | 'isOptional' | 'touch' | 'isCompleted'
-    >
+    Pick<StepStateProps, 'canAccess' | 'canEdit' | 'isOptional' | 'isCompleted'>
   >;
 };
 export type UpdateGeneralStateInput<T> = {
@@ -101,29 +92,17 @@ export type UpdateGeneralStateInput<T> = {
 
 export interface ConfigProps {
   steps: StepConfiguration[];
+  config?: StateConfigProps;
+}
+
+export interface StateConfigProps {
+  validations?: {
+    canAcess?: boolean;
+    isCompleted?: boolean;
+  };
 }
 
 export interface StepProviderProps<T> {
   children: React.ReactNode;
   initialConfig?: ConfigProps;
 }
-
-type UpdateStepPayload = { stepIndex: number; data: Partial<StepStateProps> };
-type UpdateGeneralStatePayload = {
-  stepIndex: number;
-  data: Partial<StepsContextState<any>['generalState']>;
-};
-type AddErrorPayload = { stepIndex: number; message: string };
-
-export type StepActionProps =
-  | { type: ActionTypes.SET_STEPS; payload: StepConfiguration[] }
-  | { type: ActionTypes.UPDATE_STEP; payload: UpdateStepPayload[] }
-  | {
-      type: ActionTypes.UPDATE_GENERAL_STATE;
-      payload: UpdateGeneralStatePayload;
-    }
-  | { type: ActionTypes.ADD_ERROR; payload: AddErrorPayload }
-  | {
-      type: ActionTypes.UPDATE_GENERAL_INFO;
-      payload: Partial<GeneralInfoProps>;
-    };

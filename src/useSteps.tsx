@@ -62,9 +62,8 @@ export const useSteps = <T,>(config?: ConfigProps) => {
     let initialized = false;
 
     if (!initialized && config) {
-      Object.entries(config).forEach(([key, value]) =>
-        updateConfig(key, value),
-      );
+      updateConfig(config.config || {});
+
       if (config.steps) setStepsInfo(config.steps);
       initialized = true;
     }

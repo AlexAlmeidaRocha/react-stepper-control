@@ -1,23 +1,33 @@
 import { useCallback } from 'react';
 import {
   StepsContextState,
-  GeneralInfoProps,
   UpdateGeneralStateInput,
   UpdateStepInput,
   StepConfiguration,
   StepStateProps,
   UseStepsActionsProps,
+  StateConfigProps,
 } from './types/StepTypes';
-import { ActionTypes } from './StepsReducer';
 
 export const useStepsActions = <T,>({
-  dispatch,
-  state,
+  updateStepsState,
+  stepsState,
   currentStep,
   setConfig,
 }: UseStepsActionsProps<T>) => {
   const setStepsInfo = useCallback((steps: StepConfiguration[]) => {
-    dispatch({ type: ActionTypes.SET_STEPS, payload: steps });
+    const newState = {
+      ...stepsState,
+      generalInfo: { totalSteps: steps.length, progress: 0 },
+      steps: steps.map((step: StepConfiguration) => ({
+        name: step.name,
+        canAccess: step.canAccess || false,
+        canEdit: step.canEdit || false,
+        isOptional: step.isOptional || false,
+        isCompleted: step.isCompleted || false,
+      })),
+    };
+    updateStepsState(newState);
   }, []);
 
   const updateGeneralState = useCallback(
@@ -25,48 +35,22 @@ export const useStepsActions = <T,>({
       stepIndex = currentStep,
       data,
     }: UpdateGeneralStateInput<T>): StepsContextState<T> => {
-      // if (stepIndex < 0 || stepIndex >= state.steps.length) {
-      //   throw new Error(`Invalid stepIndex: ${stepIndex}.`);
-      // }
-
-      // const newState: StepsContextState<T> = {
-      //   ...state,
-      //   generalState: {
-      //     ...state.generalState,
-      //     [`step${currentStep + 1}` as keyof typeof state.generalState]: {
-      //       ...(state.generalState[`step${currentStep + 1}` as keyof typeof state.generalState] || {}),
-      //       ...data,
-      //     } as T,
-      //   },
-      // };
       const newState: StepsContextState<T> = {
-        ...state,
+        ...stepsState,
         generalState: {
-          ...state.generalState,
+          ...stepsState.generalState,
           ...data,
         },
       };
-      dispatch({
-        type: ActionTypes.UPDATE_GENERAL_STATE,
-        payload: { stepIndex, data },
-      });
+      updateStepsState(newState);
       return newState;
     },
-    [currentStep, state],
-  );
-
-  const updateGeneralInfo = useCallback(
-    (data: Partial<GeneralInfoProps>): GeneralInfoProps => {
-      dispatch({ type: ActionTypes.UPDATE_GENERAL_INFO, payload: data });
-      return { ...state.generalInfo, ...data };
-    },
-    [state.generalInfo],
+    [currentStep, stepsState],
   );
 
   const updateSteps = useCallback(
     (updates: UpdateStepInput[]): StepsContextState<T> => {
       const validKeys: (keyof StepStateProps)[] = [
-        'touch',
         'canAccess',
         'canEdit',
         'isOptional',
@@ -85,7 +69,7 @@ export const useStepsActions = <T,>({
         }
       });
 
-      const updatedSteps = [...state.steps];
+      const updatedSteps = [...stepsState.steps];
       updates.forEach(({ stepIndex, data }) => {
         if (stepIndex < 0 || stepIndex >= updatedSteps.length) {
           throw new Error(`Invalid stepIndex: ${stepIndex}.`);
@@ -97,40 +81,46 @@ export const useStepsActions = <T,>({
       });
 
       const newState = {
-        ...state,
+        ...stepsState,
         steps: updatedSteps,
       };
-
-      dispatch({
-        type: ActionTypes.UPDATE_STEP,
-        payload: updates,
-      });
-
+      updateStepsState(newState);
       return newState;
     },
-    [currentStep, state],
+    [currentStep, stepsState],
   );
 
   const addError = useCallback((stepIndex: number, message: string) => {
     if (
-      state.errors?.find(
+      stepsState.errors?.find(
         (error) => error.step === stepIndex && error.message === message,
       )
     ) {
       return;
     }
-
-    dispatch({ type: ActionTypes.ADD_ERROR, payload: { stepIndex, message } });
+    const newState = {
+      ...stepsState,
+      errors: [
+        ...(stepsState.errors || []),
+        {
+          step: stepIndex,
+          message,
+        },
+      ],
+    };
+    updateStepsState(newState);
   }, []);
 
-  const updateConfig = useCallback((key: string, data: any) => {
-    setConfig((prev) => ({ ...prev, [key]: data }));
+  const updateConfig = useCallback((config: StateConfigProps) => {
+    setConfig((prev) => ({
+      ...prev,
+      config,
+    }));
   }, []);
 
   return {
     setStepsInfo,
     updateGeneralState,
-    updateGeneralInfo,
     updateSteps,
     addError,
     updateConfig,

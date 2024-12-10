@@ -1,11 +1,9 @@
-import React, { useReducer, useState } from 'react';
+import React, { useState } from 'react';
 import {
   StepsContextState,
   StepContextProps,
   StepProviderProps,
-  ConfigProps,
 } from './types/StepTypes';
-import StepReducer from './StepsReducer';
 import { useStepsActions } from './useStepsActions';
 import { useStepNavigation } from './useStepNavigation';
 
@@ -22,47 +20,52 @@ export const StepsContext = React.createContext<StepContextProps<any> | null>(
 
 export const StepsProvider = <T,>({
   children,
-  initialConfig = { steps: [] },
+  initialConfig = {
+    steps: [],
+  },
 }: StepProviderProps<T>) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [state, dispatch] = useReducer(StepReducer<T>, initialState);
-  const [config, setConfig] = useState<ConfigProps>(initialConfig);
+  const [stepsState, updateStepsState] = useState(initialState);
+  const [config, setConfig] = useState(initialConfig);
 
   const {
     setStepsInfo,
     updateSteps,
     updateGeneralState,
-    updateGeneralInfo,
     addError,
     updateConfig,
-  } = useStepsActions<T>({ dispatch, state, currentStep, setConfig });
+  } = useStepsActions<T>({
+    updateStepsState,
+    stepsState,
+    currentStep,
+    setConfig,
+  });
 
   const { onNext, onPrev, goToStep } = useStepNavigation<T>({
     currentStep,
     setCurrentStep,
-    state,
+    stepsState,
+    updateStepsState,
     setLoading,
-    updateSteps,
-    updateGeneralInfo,
-    updateGeneralState,
     addError,
+    config,
   });
 
   return (
     <StepsContext.Provider
       value={{
         activeStep: {
-          ...state.steps[currentStep],
+          ...stepsState.steps[currentStep],
           index: currentStep,
-          isLastStep: currentStep === state.generalInfo.totalSteps - 1,
+          isLastStep: currentStep === stepsState.generalInfo.totalSteps - 1,
           isFirstStep: currentStep === 0,
         },
         onNext,
         onPrev,
         goToStep,
         loading,
-        stepState: state,
+        stepsState,
         updateGeneralState,
         updateConfig,
         setStepsInfo,

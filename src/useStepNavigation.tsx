@@ -9,54 +9,71 @@ import {
 export const useStepNavigation = <T,>({
   currentStep,
   setCurrentStep,
-  state,
+  stepsState,
+  updateStepsState,
   setLoading,
-  updateSteps,
-  updateGeneralInfo,
-  updateGeneralState,
   addError,
+  config
 }: UseStepNavigationProps<T>) => {
   const onNext = useCallback(
     async (args?: {
       onCompleteStep?: StepStateCallback<T>;
-      updateStepsRequest?: UpdateStepInput[];
+      updateStepsStatus?: UpdateStepInput[];
       updateGeneralStates?: UpdateGeneralStateInput<T>;
     }) => {
-      const { onCompleteStep, updateStepsRequest, updateGeneralStates } =
+      const { onCompleteStep, updateStepsStatus, updateGeneralStates } =
         args || {};
       setLoading(true);
 
       try {
-        let currentState = state;
-        if (updateGeneralStates) {
-          currentState = updateGeneralState(updateGeneralStates);
-        }
+        let currentState = stepsState;
 
-        const updateStepsResponse = updateSteps([
-          {
-            stepIndex: currentStep,
-            data: { touch: true, canAccess: true, isCompleted: true },
-          },
-          {
-            stepIndex: currentStep + 1,
-            data: { touch: true, canAccess: true },
-          },
-          ...(updateStepsRequest || []),
-        ]);
+        const updatedStepsStatus = currentState.steps;
 
-        const updateGeneralInfoResponse = updateGeneralInfo({
-          progress: (currentStep + 1) / currentState.generalInfo.totalSteps,
+        updateStepsStatus?.forEach((updateStep) => {
+          updatedStepsStatus[updateStep.stepIndex] = {
+            ...currentState.steps[updateStep.stepIndex],
+            ...updateStep.data,
+          };
         });
 
         currentState = {
           ...currentState,
-          steps: updateStepsResponse.steps,
-          generalInfo: updateGeneralInfoResponse,
+          steps: [
+            ...updatedStepsStatus.map((step, index) => {
+              if (index === currentStep) {
+                return {
+                  ...step,
+                  canAccess: true,
+                  isCompleted: true,
+                };
+              }
+
+              if (index === currentStep + 1) {
+                return {
+                  ...step,
+                  canAccess: true,
+                };
+              }
+
+              return step;
+            }),
+          ],
+          generalInfo: {
+            ...currentState.generalInfo,
+            progress: (currentStep + 1) / currentState.generalInfo.totalSteps,
+          },
+          generalState: {
+            ...currentState.generalState,
+            ...(updateGeneralStates?.data || {}),
+          },
         };
 
         if (onCompleteStep) {
           await onCompleteStep(currentState);
         }
+
+        updateStepsState(currentState);
 
         if (currentStep < currentState.generalInfo.totalSteps - 1) {
           setCurrentStep((prev) => prev + 1);
@@ -67,7 +84,7 @@ export const useStepNavigation = <T,>({
         setLoading(false);
       }
     },
-    [currentStep, state],
+    [currentStep, stepsState],
   );
 
   const onPrev = async (callback?: StepStateCallback<T>) => {
@@ -75,7 +92,7 @@ export const useStepNavigation = <T,>({
 
     if (callback) {
       setLoading(true);
-      await callback(state);
+      await callback(stepsState);
       setLoading(false);
     }
 
@@ -87,20 +104,20 @@ export const useStepNavigation = <T,>({
       nextStep: number,
       args?: {
         onCompleteStep?: StepStateCallback<T>;
-        updateStepsRequest?: UpdateStepInput[];
+        updateStepsStatus?: UpdateStepInput[];
         updateGeneralStates?: { stepIndex?: number; data: Partial<T> };
       },
     ) => {
       if (nextStep === currentStep) return;
-      const { onCompleteStep, updateStepsRequest, updateGeneralStates } =
+      const { onCompleteStep, updateStepsStatus, updateGeneralStates } =
         args || {};
 
-      if (nextStep > state.generalInfo.totalSteps - 1) {
+      if (nextStep > stepsState.generalInfo.totalSteps - 1) {
         throw new Error(`The step ${nextStep} does not exist.`);
       }
 
       if (nextStep > currentStep) {
-        if (!state.steps[nextStep].canAccess) {
+        if (!stepsState.steps[nextStep].canAccess) {
           addError(
             currentStep,
             `The step ${nextStep} is not accessible because it is not access.`,
@@ -112,27 +129,34 @@ export const useStepNavigation = <T,>({
       setLoading(true);
 
       try {
-        let currentState = state;
-        if (updateGeneralStates) {
-          currentState = updateGeneralState(updateGeneralStates);
-        }
+        let currentState = stepsState;
+        const updatedStepsStatus = currentState.steps;
 
-        const updateStepsResponse = updateSteps(updateStepsRequest || []);
-
-        const updateGeneralInfoResponse = updateGeneralInfo({
-          progress: (nextStep + 1) / currentState.generalInfo.totalSteps,
+        updateStepsStatus?.forEach((updateStep) => {
+          updatedStepsStatus[updateStep.stepIndex] = {
+            ...currentState.steps[updateStep.stepIndex],
+            ...updateStep.data,
+          };
         });
 
         currentState = {
           ...currentState,
-          steps: updateStepsResponse.steps,
-          generalInfo: updateGeneralInfoResponse,
+          steps: [...updatedStepsStatus],
+          generalInfo: {
+            ...currentState.generalInfo,
+            progress: (currentStep + 1) / currentState.generalInfo.totalSteps,
+          },
+          generalState: {
+            ...currentState.generalState,
+            ...(updateGeneralStates || {}),
+          },
         };
 
         if (onCompleteStep) {
           await onCompleteStep(currentState);
         }
 
+        updateStepsState(currentState);
         setCurrentStep(nextStep);
       } catch (error) {
         console.error('Error in goToStep:', error);
@@ -140,7 +164,7 @@ export const useStepNavigation = <T,>({
         setLoading(false);
       }
     },
-    [currentStep, state],
+    [currentStep, stepsState],
   );
 
   return { onNext, onPrev, goToStep };
