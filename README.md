@@ -1,8 +1,8 @@
 # React Stepper Control
 
-**React Stepper Control** is a React library that simplifies the creation of step flows, such as wizards or multi-step forms, with navigation control, validations, and customizable configuration.
+## Introduction
 
-The library provides a context to manage the state of each step, allowing you to customize navigation behavior, validations, errors, and state management.
+This library provides a powerful hook called useSteps to facilitate managing step flows in React applications. This hook offers properties and functions to create, navigate, and manipulate step states in a flexible and scalable way.
 
 ---
 
@@ -14,147 +14,180 @@ Install the library using npm:
 npm i react-stepper-control
 ```
 
-## Example Usage
+## Hook Returns
 
-Here’s an example of how to use React Stepper Control to create a multi-step form:
+### `stepsState`
+An object containing the complete state of the steps.
 
-```JSX
-import { StepConfiguration, useSteps, StepsWithProvider, VerticalStepper, HorizontalStepper } from "react-stepper-control";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
+### `generalInfo`
+Provides general information about the process, such as:
+- `Total steps`
+- `Current progress`
 
-// Step component that dynamically renders each step in the process
-export const Step = ({ steps, title }: { steps: StepConfiguration[]; title?: string }) => {
-	const { activeStep, goToStep } = useSteps({ steps }); // Use the custom hook to manage steps, just pass the steps in main component
+### `steps`
 
-	return (
-		<div>
-			<h1>{title}</h1>
-			<div>
-				{steps.map((step, index) => (
-					<div key={index}>
-						<div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-							<div onClick={() => goToStep(index)}>
-								{activeStep.index > index ? '✔' : index + 1}
-							</div>
-							<div>{step.name}</div>
-						</div>
-						{activeStep.index === index && <div>{step.component}</div>}
-					</div>
-				))}
-			</div>
-		</div>
-	);
-};
+A list of configurations for all steps, including:
 
-// Step 1: Basic navigation between steps
-export const Step1 = () => {
-	const { onNext, onPrev } = useSteps();
+- `name`: Name of the step
+- `canAccess`: Defines if the step can be accessed
+- `canEdit`: Defines if the step can be edited
+- `isOptional`: Indicates if the step is optional
+- `isCompleted`: Indicates if the step is completed
 
-	const handleNext = () => onNext({
-		onCompleteStep: (data) => console.log('Step 1 completed with data:', data),
-		updateSteps: [{ stepIndex: 1, data: { canEdit: true } }],
-	});
+By default, the boolean values (`canAccess`, `canEdit`, `isOptional`, `isCompleted`) are set to `false` if not specified.
 
-	return (
-		<div>
-			<h1>Step 1</h1>
-			<button onClick={() => onPrev()}>Previous</button>
-			<button onClick={handleNext}>Next</button>
-		</div>
-	);
-};
+#### Usage Example
 
-// Step 2: Form with validation using Zod and react-hook-form
-const schema = z.object({
-	name: z.string().min(1, "Name is required"),
-	email: z.string().email("Please enter a valid email address"),
-	age: z.number().min(18, "You must be at least 18 years old"),
-});
-
-type FormData = z.infer<typeof schema>;
-
-export const Step2 = () => {
-	const { onNext, onPrev, stepState } = useSteps<FormData>(); // Use the custom hook with a generic type to manage form data
-	const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
-		resolver: zodResolver(schema),
-	});
-
-	console.log(stepState.generalState?.name); // Access values from general state. This is useful for sharing data between steps. Remember to type the general state
-
-	const handlePrev = () => onPrev();
-	const handleNext = (data: FormData) => onNext({ formState: data }); // Save form data to the general state
-
-	return (
-		<div>
-			<h1>Step 2: User Information</h1>
-			<form onSubmit={handleSubmit(handleNext)}>
-				<div>
-					<label>Name:</label>
-					<input {...register("name")} />
-					{errors.name && <p>{errors.name.message}</p>}
-				</div>
-				<div>
-					<label>Email:</label>
-					<input {...register("email")} />
-					{errors.email && <p>{errors.email.message}</p>}
-				</div>
-				<div>
-					<label>Age:</label>
-					<input type="number" {...register("age", { valueAsNumber: true })} />
-					{errors.age && <p>{errors.age.message}</p>}
-				</div>
-				<button type="submit">Submit</button>
-			</form>
-			<button onClick={handlePrev}>Previous</button>
-		</div>
-	);
-};
-
-// Step 3: Example of updating the general state and navigating
-type CustomGeneralState = {
-	userId: string;
-	preferences: { theme: string; notificationsEnabled: boolean };
-};
-
-export const Step3 = () => {
-	const { onNext, onPrev, stepState } = useSteps<CustomGeneralState & FormData>();
-
-	console.log(stepState.generalState?.name); // Access values the last step's form data
-
-	const handlePrev = () => onPrev();
-	const handleNext = () => {
-		onNext();
-		console.log('Proceeding to the next step');
-	};
-
-	return (
-		<div>
-			<h1>Step 3: User Preferences</h1>
-			<button onClick={handlePrev}>Previous</button>
-			<button onClick={handleNext}>Next</button>
-		</div>
-	);
-};
-
-// Main component that wraps steps in a HorizontalStepper for step navigation
-const App = () => {
-	return (
-		<div>
-			<HorizontalStepper
-				title="User Registration Process"
-				steps={[
-					{ name: "Step 1: Introduction", component: <Step1 /> },
-					{ name: "Step 2: User Information", component: <Step2 /> },
-					{ name: "Step 3: Preferences", component: <Step3 /> },
-				]}
-			/>
-		</div>
-	);
-};
-
-// Wrap the page with StepsWithProvider to enable the context and manage steps. This is required for the custom hook to work
-export default StepsWithProvider(App);
-
+```bash
+<HorizontalStepper
+ title="User Registration Process"
+  steps={[
+   { name: "Step1", component: <Step1 />, canAccess: true },
+   { name: "Step2", component: <Step2 />, canAccess: false, canEdit: true },
+   { name: "Step3", component: <Step3 />, isCompleted: true },
+   { name: "Step4", component: <Step4 />, isOptional: true },
+ ]}
+/>
 ```
+In this example, we use the HorizontalStepper component provided by the library. You can also create your own custom component, as shown below:
+
+```bash
+export const Step = ({ steps, title }: { steps: StepConfiguration[] }) => {
+ const { stepsState } = useSteps({ steps });
+
+ return (
+  // Implement your component using stepsState
+ );
+};
+```
+
+### `General State`
+The generalState is a user-provided state that can be used to share information between steps. It can be typed using generics. Example:
+
+```bash
+interface Step1Type {
+ step1: {
+  test: string;
+  test1: number;
+ };
+}
+
+export const Step1 = () => {
+ const { onNext, onPrev, activeStep } = useSteps<Step1Type>();
+
+ const handleNext = () =>
+  onNext({
+   updateStepsStatus: [{ stepIndex: 1, data: { canEdit: true } }],
+    onCompleteStep: (data) => console.log("Step 1 completed with data:", data),
+  });
+
+ return (
+  <div>
+   <h1>Step 1</h1>
+   <button onClick={() => onPrev()}>Previous</button>
+   <button onClick={handleNext}>Next</button>
+  </div>
+ );
+};
+```
+#### Recommended Typing
+Use extends to reuse the state of previous steps:
+
+```bash
+interface Step1Type {
+ step1: { /* Step 1 values */ };
+}
+
+interface Step2Type extends Step1Type {
+ step2: { /* Step 2 values */ };
+}
+
+interface Step3Type extends Step2Type {
+ step3: { /* Step 3 values */ };
+}
+```
+Alternatively, you can create separate typings for each step if preferred.
+
+### `errors`
+- A place where step errors are stored.
+- Users can also manually add errors.
+
+*This feature is under development.*
+
+### `activeStep`
+Provides the settings of the currently active step:
+- `name`
+- `canAccess`
+- `canEdit`
+- `isOptional`
+- `isCompleted`
+- `index`
+- `isLastStep`
+- `isFirstStep`
+
+### `loading`
+Indicates if any asynchronous function (goToStep, onNext, onPrev) is being executed.
+
+### Functions
+
+### `updateGeneralState`
+Updates the `generalState`
+
+#### Example:
+
+```bash
+const updatedState = updateGeneralState({ data: { step1: { /* new values */ } } });
+console.log(updatedState);
+```
+
+### `updateSteps`
+Updates configurations for one or more `steps`.
+
+#### Example:
+
+```bash
+const updatedSteps = updateSteps([{ stepIndex: 2, data: { canEdit: true } }]);
+console.log(updatedSteps);
+```
+
+### `onNext`
+Moves to the next step. 
+
+Defaults: Marks the current step as `canAccess` and `isCompleted`.
+
+Allows updates to `generalState` and `steps` via `updateGeneralStates` and `updateStepsStatus`.
+
+#### Example:
+
+```bash
+onNext({
+ updateGeneralStates: { data: { step1: { /* new values */ } } },
+ updateStepsStatus: [{ stepIndex: 2, data: { canEdit: true } }],
+ onCompleteStep: async (data) => {
+  await new Promise((resolve) => setTimeout(resolve, 3000));
+  console.log("Step 2 completed with data:", data);
+ },
+});
+```
+
+### `onPrev`
+Moves back to the previous step. Works similarly to `onNext`.
+
+### `goToStep`
+Navigates to a specific step by index. Works similarly to `onNext`, with the addition of the target step index.
+
+#### Example:
+
+```bash
+goToStep(2, {
+ updateGeneralStates: { data: { step1: { /* new values */ } } },
+ updateStepsStatus: [{ stepIndex: 2, data: { canEdit: true } }],
+ onCompleteStep: async (data) => {
+  await new Promise((resolve) => setTimeout(resolve, 3000));
+  console.log("Step 2 completed with data:", data);
+ },
+});
+```
+
+## Important
+`VerticalStepper` and `HorizontalStepper` are not yet completely usable, it is recommended to create your own component and use the hook to manage
