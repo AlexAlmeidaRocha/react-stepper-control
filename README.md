@@ -21,8 +21,10 @@ An object containing the complete state of the steps.
 
 ### `generalInfo`
 Provides general information about the process, such as:
-- `Total steps`
-- `Current progress`
+- `totalSteps`
+- `currentProgress`
+- `completedProgress`
+- `canAccessProgress`
 
 ### `steps`
 
@@ -52,7 +54,7 @@ By default, the boolean values (`canAccess`, `canEdit`, `isOptional`, `isComplet
 In this example, we use the HorizontalStepper component provided by the library. You can also create your own custom component, as shown below:
 
 ```bash
-export const Step = ({ steps, title }: { steps: StepConfiguration[] }) => {
+export const Step = ({ steps }: { steps: StepConfiguration[] }) => {
  const { stepsState } = useSteps({ steps });
 
  return (
@@ -165,13 +167,26 @@ onNext({
  updateStepsStatus: [{ stepIndex: 2, data: { canEdit: true } }],
  onCompleteStep: async (data) => {
   await new Promise((resolve) => setTimeout(resolve, 3000));
-  console.log("Step 2 completed with data:", data);
+  console.log("Steps data:", data);
  },
 });
 ```
 
 ### `onPrev`
 Moves back to the previous step. Works similarly to `onNext`.
+
+#### Example:
+
+```bash
+onPrev({
+ updateGeneralStates: { data: { step1: { /* new values */ } } },
+ updateStepsStatus: [{ stepIndex: 2, data: { canEdit: true } }],
+ onCompleteStep: async (data) => {
+  await new Promise((resolve) => setTimeout(resolve, 3000));
+  console.log("Steps data:", data);
+ },
+});
+```
 
 ### `goToStep`
 Navigates to a specific step by index. Works similarly to `onNext`, with the addition of the target step index.
@@ -188,6 +203,97 @@ goToStep(2, {
  },
 });
 ```
+
+You can configure which properties to set as true or false for each function using the initial configuration when creating your component.
+
+#### Example:
+
+```bash
+export const Step = ({ steps }: { steps: StepConfiguration[] }) => {
+ const { stepsState } = useSteps({ steps, config: {
+  validations: {
+   goToStep: {
+    canAccess: // true or false
+   },
+   next: {
+    currentStep: {
+     canAccess: // true or false
+     canEdit: // true or false
+     isOptional: // true or false
+     isCompleted: // true or false
+    },
+    nextStep: {
+     canAccess: // true or false
+     canEdit: // true or false
+     isOptional: // true or false
+     isCompleted: // true or false
+    }
+   },
+   prev: {
+    currentStep: {
+     canAccess: // true or false
+     canEdit: // true or false
+     isOptional: // true or false
+     isCompleted: // true or false
+    },
+    prevStep: {
+     canAccess: // true or false
+     canEdit: // true or false
+     isOptional: // true or false
+     isCompleted: // true or false
+    }
+   },
+   goToStep: {
+    currentStep: {
+     canAccess: // true or false
+     canEdit: // true or false
+     isOptional: // true or false
+     isCompleted: // true or false
+    },
+    nextStep: {
+     canAccess: // true or false
+     canEdit: // true or false
+     isOptional: // true or false
+     isCompleted: // true or false
+    }
+   },
+  }
+ } 
+});
+
+ return (
+  // Implement your component using stepsState
+ );
+};
+```
+`validations.goToStep.canAccess`: Determines whether navigation to a specific step (`goToStep(index)`) is allowed based on the current step's state.
+
+If `true`, it validates that the target step's `canAccess` property is `true` before allowing navigation.
+By default, this validation is always performed.
+
+`next.currentStep`: Sets the properties of the current step when moving to the next step.
+`next.nextStep`: Sets the properties of the next step when advancing to it.
+
+`prev.currentStep`: Sets the properties of the current step when going back to the previous step.
+`prev.prevStep`: Sets the properties of the previous step when navigating back to it.
+
+`goToStep.currentStep`: Sets the properties of the current step when using `goToStep(index)` to navigate to a specific step.
+
+`goToStep.nextStep`: Sets the properties of the target step when navigating to it with `goToStep(index)`.
+
+The following properties can be configured for each step:
+
+- `canAccess`
+Controls whether the step can be accessed.
+
+- `canEdit`
+Controls whether the step can be edited.
+
+- `isOptional`
+Indicates if the step is optional.
+
+- `isCompleted`
+Marks whether the step is completed.
 
 ## Important
 `VerticalStepper` and `HorizontalStepper` are not yet completely usable, it is recommended to create your own component and use the hook to manage

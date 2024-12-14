@@ -18,7 +18,12 @@ export const useStepsActions = <T,>({
   const setStepsInfo = useCallback((steps: StepConfiguration[]) => {
     const newState = {
       ...stepsState,
-      generalInfo: { totalSteps: steps.length, progress: 0 },
+      generalInfo: {
+        totalSteps: steps.length,
+        currentProgress: 0,
+        completedProgress: 0,
+        canAccessProgress: 0,
+      },
       steps: steps.map((step: StepConfiguration) => ({
         name: step.name,
         canAccess: step.canAccess || false,

@@ -39,29 +39,45 @@ export const useStepNavigation = <T,>({
 
         currentState = {
           ...currentState,
-          steps: [
-            ...updatedStepsStatus.map((step, index) => {
-              if (config?.validations?.isCompleted && index === currentStep) {
-                return {
-                  ...step,
-                  canAccess: true,
-                  isCompleted: true,
-                };
-              }
+          steps: updatedStepsStatus.map((step, index) => {
+            const isCurrentStep = index === currentStep;
+            const isNextStep = index === currentStep + 1;
 
-              if (config?.validations?.canAccess && index === currentStep + 1) {
-                return {
-                  ...step,
-                  canAccess: true,
-                };
-              }
+            if (isCurrentStep) {
+              return {
+                ...step,
+                canAccess: config.next?.currentStep?.canAccess ?? true,
+                isCompleted: config.next?.currentStep?.isCompleted ?? true,
+                isOptional:
+                  config.next?.currentStep?.isOptional ?? step.isOptional,
+                canEdit: config.next?.currentStep?.canEdit ?? step.canEdit,
+              };
+            }
 
-              return step;
-            }),
-          ],
+            if (isNextStep) {
+              return {
+                ...step,
+                canAccess: config.next?.nextStep?.canAccess ?? true,
+                isCompleted:
+                  config.next?.nextStep?.isCompleted ?? step.isCompleted,
+                isOptional:
+                  config.next?.nextStep?.isOptional ?? step.isOptional,
+                canEdit: config.next?.nextStep?.canEdit ?? step.canEdit,
+              };
+            }
+
+            return step;
+          }),
           generalInfo: {
             ...currentState.generalInfo,
-            progress: (currentStep + 1) / currentState.generalInfo.totalSteps,
+            currentProgress:
+              (currentStep + 1) / currentState.generalInfo.totalSteps,
+            completedProgress:
+              stepsState.steps.filter((item) => item.isCompleted === true)
+                .length / currentState.generalInfo.totalSteps,
+            canAccessProgress:
+              stepsState.steps.filter((item) => item.canAccess === true)
+                .length / currentState.generalInfo.totalSteps,
           },
           generalState: {
             ...currentState.generalState,
@@ -87,16 +103,90 @@ export const useStepNavigation = <T,>({
     [currentStep, stepsState],
   );
 
-  const onPrev = async (callback?: StepStateCallback<T>) => {
-    if (currentStep === 0) return;
+  const onPrev = async (args?: {
+    onCompleteStep?: StepStateCallback<T>;
+    updateStepsStatus?: UpdateStepInput[];
+    updateGeneralStates?: UpdateGeneralStateInput<T>;
+  }) => {
+    if (currentStep === 0) {
+      addError(currentStep, 'You are in the first step.');
+      return;
+    }
+    const { onCompleteStep, updateStepsStatus, updateGeneralStates } =
+      args || {};
 
-    if (callback) {
-      setLoading(true);
-      await callback(stepsState);
+    setLoading(true);
+
+    try {
+      let currentState = stepsState;
+      const updatedStepsStatus = currentState.steps;
+
+      updateStepsStatus?.forEach((updateStep) => {
+        updatedStepsStatus[updateStep.stepIndex] = {
+          ...currentState.steps[updateStep.stepIndex],
+          ...updateStep.data,
+        };
+      });
+
+      currentState = {
+        ...currentState,
+        steps: updatedStepsStatus.map((step, index) => {
+          const isCurrentStep = index === currentStep;
+          const isPrevStep = index === currentStep - 1;
+
+          if (isCurrentStep) {
+            return {
+              ...step,
+              canAccess: config.prev?.currentStep?.canAccess ?? step.canAccess,
+              isCompleted:
+                config.prev?.currentStep?.isCompleted ?? step.isCompleted,
+              isOptional:
+                config.prev?.currentStep?.isOptional ?? step.isOptional,
+              canEdit: config.prev?.currentStep?.canEdit ?? step.canEdit,
+            };
+          }
+
+          if (isPrevStep) {
+            return {
+              ...step,
+              canAccess: config.prev?.prevStep?.canAccess ?? step.canAccess,
+              isCompleted:
+                config.prev?.prevStep?.isCompleted ?? step.isCompleted,
+              isOptional: config.prev?.prevStep?.isOptional ?? step.isOptional,
+              canEdit: config.prev?.prevStep?.canEdit ?? step.canEdit,
+            };
+          }
+
+          return step;
+        }),
+        generalInfo: {
+          ...currentState.generalInfo,
+          currentProgress:
+            (currentStep - 1) / currentState.generalInfo.totalSteps,
+          completedProgress:
+            stepsState.steps.filter((item) => item.isCompleted === true)
+              .length / currentState.generalInfo.totalSteps,
+          canAccessProgress:
+            stepsState.steps.filter((item) => item.canAccess === true).length /
+            currentState.generalInfo.totalSteps,
+        },
+        generalState: {
+          ...currentState.generalState,
+          ...(updateGeneralStates?.data || {}),
+        },
+      };
+
+      if (onCompleteStep) {
+        await onCompleteStep(currentState);
+      }
+
+      updateStepsState(currentState);
+      setCurrentStep((prev) => Math.max(prev - 1, 0));
+    } catch (error) {
+      console.error('Error in goToStep:', error);
+    } finally {
       setLoading(false);
     }
-
-    setCurrentStep((prev) => Math.max(prev - 1, 0));
   };
 
   const goToStep = useCallback(
@@ -116,13 +206,19 @@ export const useStepNavigation = <T,>({
         throw new Error(`The step ${nextStep} does not exist.`);
       }
 
-      if (nextStep > currentStep) {
-        if (config?.next?.canAccess && !stepsState.steps[nextStep].canAccess) {
-          addError(
-            currentStep,
-            `The step ${nextStep} is not accessible because it is not access.`,
-          );
-          return;
+      const validationCanAccess = config?.validations?.goToStep?.canAccess
+        ? config.validations.goToStep.canAccess
+        : true;
+
+      if (validationCanAccess) {
+        if (nextStep > currentStep) {
+          if (!stepsState.steps[nextStep].canAccess) {
+            addError(
+              currentStep,
+              `The step ${nextStep} is not accessible because it is not access.`,
+            );
+            return;
+          }
         }
       }
 
@@ -141,14 +237,52 @@ export const useStepNavigation = <T,>({
 
         currentState = {
           ...currentState,
-          steps: [...updatedStepsStatus],
+          steps: updatedStepsStatus.map((step, index) => {
+            const isCurrentStep = index === currentStep;
+            const isNextStep = index === nextStep;
+
+            if (isCurrentStep) {
+              return {
+                ...step,
+                canAccess:
+                  config.goToStep?.currentStep?.canAccess ?? step.canAccess,
+                isCompleted:
+                  config.goToStep?.currentStep?.isCompleted ?? step.isCompleted,
+                isOptional:
+                  config.goToStep?.currentStep?.isOptional ?? step.isOptional,
+                canEdit: config.goToStep?.currentStep?.canEdit ?? step.canEdit,
+              };
+            }
+
+            if (isNextStep) {
+              return {
+                ...step,
+                canAccess:
+                  config.goToStep?.nextStep?.canAccess ?? step.canAccess,
+                isCompleted:
+                  config.goToStep?.nextStep?.isCompleted ?? step.isCompleted,
+                isOptional:
+                  config.goToStep?.nextStep?.isOptional ?? step.isOptional,
+                canEdit: config.goToStep?.nextStep?.canEdit ?? step.canEdit,
+              };
+            }
+
+            return step;
+          }),
           generalInfo: {
             ...currentState.generalInfo,
-            progress: (currentStep + 1) / currentState.generalInfo.totalSteps,
+            currentProgress:
+              (currentStep + 1) / currentState.generalInfo.totalSteps,
+            completedProgress:
+              stepsState.steps.filter((item) => item.isCompleted === true)
+                .length / currentState.generalInfo.totalSteps,
+            canAccessProgress:
+              stepsState.steps.filter((item) => item.canAccess === true)
+                .length / currentState.generalInfo.totalSteps,
           },
           generalState: {
             ...currentState.generalState,
-            ...(updateGeneralStates || {}),
+            ...(updateGeneralStates?.data || {}),
           },
         };
 

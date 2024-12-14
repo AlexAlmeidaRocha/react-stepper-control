@@ -1,6 +1,8 @@
 export interface GeneralInfoProps {
   totalSteps: number;
-  progress: number;
+  currentProgress: number;
+  completedProgress: number;
+  canAccessProgress: number;
 }
 
 export interface StepStateProps {
@@ -39,7 +41,11 @@ export interface StepContextProps<T> {
     updateStepsStatus?: UpdateStepInput[];
     updateGeneralStates?: UpdateGeneralStateInput<T>;
   }) => void;
-  onPrev: (callback?: StepStateCallback<T>) => void;
+  onPrev: (args?: {
+    onCompleteStep?: StepStateCallback<T>;
+    updateStepsStatus?: UpdateStepInput[];
+    updateGeneralStates?: UpdateGeneralStateInput<T>;
+  }) => void;
   goToStep: (
     nextStep: number,
     args?: {
@@ -96,12 +102,21 @@ export interface ConfigProps extends StateConfigProps {
 
 export interface StateConfigProps {
   validations?: {
-    canAccess?: boolean;
-    isCompleted?: boolean;
+    goToStep?: {
+      canAccess?: boolean;
+    };
   };
   next?: {
-    canAccess?: boolean;
-    isCompleted?: boolean;
+    currentStep?: Partial<Omit<StepStateProps, 'name'>>;
+    nextStep?: Partial<Omit<StepStateProps, 'name'>>;
+  };
+  prev?: {
+    currentStep?: Partial<Omit<StepStateProps, 'name'>>;
+    prevStep?: Partial<Omit<StepStateProps, 'name'>>;
+  };
+  goToStep?: {
+    currentStep?: Partial<Omit<StepStateProps, 'name'>>;
+    nextStep?: Partial<Omit<StepStateProps, 'name'>>;
   };
 }
 

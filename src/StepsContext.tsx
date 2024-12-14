@@ -9,7 +9,12 @@ import { useStepsActions } from './useStepsActions';
 import { useStepNavigation } from './useStepNavigation';
 
 const initialState: StepsContextState<any> = {
-  generalInfo: { totalSteps: 0, progress: 0 },
+  generalInfo: {
+    totalSteps: 0,
+    currentProgress: 0,
+    completedProgress: 0,
+    canAccessProgress: 0,
+  },
   steps: [],
   generalState: {},
   errors: [],
@@ -17,14 +22,6 @@ const initialState: StepsContextState<any> = {
 
 const defaultConfig: ConfigProps = {
   steps: [],
-  validations: {
-    canAccess: true,
-    isCompleted: true,
-  },
-  next: {
-    canAccess: true,
-    isCompleted: true,
-  },
 };
 
 export const StepsContext = React.createContext<StepContextProps<any> | null>(
