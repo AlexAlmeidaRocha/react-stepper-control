@@ -297,3 +297,142 @@ Marks whether the step is completed.
 
 ## Important
 `VerticalStepper` and `HorizontalStepper` are not yet completely usable, it is recommended to create your own component and use the hook to manage
+
+## Components
+
+### `HorizontalStepper`
+
+```bash
+<HorizontalStepper
+ title="User Registration Process"
+  config={{
+   validations: {
+    goToStep: {
+     canAccess: false,
+    },
+   },
+  }}
+  configStepper={{
+   stepContainer: {
+    styles: {
+     backgroundColor: "#f9f9f9",
+    },
+   },
+   step: {
+    width: 300,
+    style: {
+     backgroundColor: "#fff",
+     padding: "20px",
+     borderRadius: "5px",
+     boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
+    },
+   },
+   colors: {
+    active: "#007bff",
+    completed: "#28a745",
+    disabled: "#ccc",
+   },
+  }}
+  steps={[
+   { name: "Step1", component: <Step1 />, canAccess: true },
+   { name: "Step2", component: <Step2 />, canAccess: false, canEdit: true },
+   { name: "Step3", component: <Step3 />, isCompleted: true },
+   { name: "Step4", component: <Step4 />, isOptional: true },
+ ]}
+/>
+```
+
+### Propriedades
+
+#### `steps`
+A list of objects representing each step in the stepper.
+
+`name`: string - Name or label of the step.
+
+`component`: React.ReactNode - Component or content associated with this step.
+
+`isOptional`: boolean - Indicates if the step is optional.
+
+`isCompleted`: boolean - Marks the step as completed.
+
+`canAccess`: boolean - Defines if the user can access the step (even if it is not the active step).
+
+#### `title`
+`string` - Title displayed in the component's header (optional).
+
+#### `config`
+`object` - Allows configuration of which properties to set as `true` or `false` for each function using the initial configuration when creating the component, as previously explained.
+
+#### `configStepper`
+
+A set of visual and behavioral configurations for the stepper. This field is optional and subdivided into several categories:
+
+#### `stepContainer`
+
+`styles` - React.CSSProperties - Defines custom styles for the container.
+
+#### `step`
+
+Configurations related to individual steps.
+
+`width`: number - Fixed width of the steps (in pixels).
+
+`minWidth`: number - Minimum width (in pixels).
+
+`maxWidth`: number - Maximum width (in pixels).
+
+`height`: number - Fixed height (in pixels).
+
+`minHeight`: number - Minimum height (in pixels).
+
+`maxHeight`: number - Maximum height (in pixels).
+
+`flexDirection`: 'row' | 'column' - Direction of the step content (horizontal or vertical).
+
+`justifyContent`: 'flex-start' | 'center' | 'flex-end' - Horizontal alignment of the content.
+
+`alignItems`: 'flex-start' | 'center' | 'flex-end' - Vertical alignment of the content.
+
+`style`: React.CSSProperties - Custom style object for the steps.
+
+#### `colors`
+
+Defines the colors of the stepper.
+
+`active`: string - Color for active steps.
+
+`completed`: string - Color for completed steps.
+
+`disabled`: string - Color for disabled steps.
+
+`optional`: string - Color for optional steps.
+
+#### `progressBar`
+
+Configurations for the progress bar.
+
+`showProgressBarActive`: boolean - Displays the bar for active steps.
+
+`showProgressBarCompleted`: boolean - Displays the bar for completed steps.
+
+`width`: number - Width of the progress bar (in percentage).
+
+`height`: number - Height of the progress bar (in pixels).
+
+`position`: 'left' | 'center' | 'right' - Position of the bar in the container.
+
+`style`: React.CSSProperties - Object to style the progress bar.
+
+#### `connector`
+
+Configurations for the connectors between steps.
+
+`showConnector`: boolean - Displays connectors between steps.
+
+`height`: number - Height of the connector (in pixels).
+
+`width`: number - Width of the connector (in pixels).
+
+`color`: string - Color of the connector.
+
+`style`: React.CSSProperties - Custom styles for the connectors.

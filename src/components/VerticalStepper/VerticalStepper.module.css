@@ -1,26 +1,27 @@
 .wrapper {
   display: flex;
   flex-direction: column;
+  align-items: center;
   width: 100%;
 }
 
-.header {
-  text-align: center;
+.title {
   margin-bottom: 16px;
-}
-
-.content {
-  display: flex;
-  flex-direction: column;
+  text-align: center;
 }
 
 .stepsContainer {
-  list-style: none;
-  margin: 0;
-  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
 }
 
 .stepItem {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  position: relative;
   margin-bottom: 16px;
 }
 
@@ -31,11 +32,13 @@
   background: none;
   border: none;
   cursor: pointer;
+  text-align: center;
 }
 
 .stepButton[disabled] {
   cursor: not-allowed;
   opacity: 0.5;
+  transition: all 0.3s ease-in-out;
 }
 
 .stepIndicator {
@@ -47,30 +50,40 @@
   border-radius: 50%;
   font-size: 16px;
   font-weight: bold;
-  border: 2px solid #ccc;
+  border: 2px solid var(--color-disabled);
+  transition: all 0.3s ease-in-out;
 }
 
 .stepIndicator.active {
-  border-color: blue;
-  background-color: lightblue;
+  border-color: var(--color-active);
+  color: var(--color-active);
 }
 
 .stepIndicator.completed {
-  border-color: green;
-  background-color: lightgreen;
+  border-color: var(--color-completed);
+  color: var(--color-completed);
 }
 
-.stepIndicator.disabled {
-  border-color: #ccc;
+.stepIndicator.optional {
+  border-color: var(--color-optional);
+  color: var(--color-optional);
 }
 
 .stepLabel {
-  font-size: 16px;
+  font-size: 14px;
+  margin-top: 8px;
+}
+
+.stepLabel.active {
+  color: black;
+  font-weight: bold;
 }
 
 .stepContent {
-  margin-top: 8px;
-  padding: 8px;
+  margin-top: 16px;
+  padding: 16px;
   border: 1px solid #ddd;
   border-radius: 4px;
+  width: 100%;
+  box-sizing: border-box;
 }
