@@ -62,6 +62,8 @@ export interface StepContextProps<T> {
   updateConfig: (config: StateConfigProps) => void;
   updateSteps: (updateSteps: UpdateStepInput[]) => StepsContextState<T>;
   setStepsInfo: (steps: StepConfiguration[]) => void;
+  updateStateWithLocalStorage: (state: StepsContextState<T>) => void;
+  cleanLocalStorage: () => void;
 }
 
 export interface UseStepNavigationProps<T> {
@@ -78,7 +80,9 @@ export interface UseStepsActionsProps<T> {
   updateStepsState: React.Dispatch<React.SetStateAction<StepsContextState<T>>>;
   stepsState: StepsContextState<T>;
   currentStep: number;
+  setCurrentStep: React.Dispatch<React.SetStateAction<number>>;
   setConfig: React.Dispatch<React.SetStateAction<ConfigProps>>;
+  config: ConfigProps;
 }
 
 export type StepStateCallback<T> = (
@@ -118,6 +122,7 @@ export interface StateConfigProps {
     currentStep?: Partial<Omit<StepStateProps, 'name'>>;
     nextStep?: Partial<Omit<StepStateProps, 'name'>>;
   };
+  saveLocalStorage?: boolean;
 }
 
 export interface StepProviderProps<T> {

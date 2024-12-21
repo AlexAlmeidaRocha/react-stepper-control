@@ -86,6 +86,17 @@ export const useStepNavigation = <T,>({
           },
         };
 
+        if (config.saveLocalStorage) {
+          localStorage.setItem('stepsState', JSON.stringify(currentState));
+        }
+
+        if (
+          config.saveLocalStorage &&
+          currentStep === currentState.generalInfo.totalSteps - 1
+        ) {
+          localStorage.removeItem('stepsState');
+        }
+        
         if (onCompleteStep) {
           await onCompleteStep(currentState);
         }
@@ -95,6 +106,7 @@ export const useStepNavigation = <T,>({
         if (currentStep < currentState.generalInfo.totalSteps - 1) {
           setCurrentStep((prev) => prev + 1);
         }
+
       } catch (error) {
         console.error('Error in onNext:', error);
       } finally {

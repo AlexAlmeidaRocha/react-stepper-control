@@ -13,7 +13,9 @@ export const useStepsActions = <T,>({
   updateStepsState,
   stepsState,
   currentStep,
+  setCurrentStep,
   setConfig,
+  config,
 }: UseStepsActionsProps<T>) => {
   const setStepsInfo = useCallback((steps: StepConfiguration[]) => {
     const newState = {
@@ -35,6 +37,40 @@ export const useStepsActions = <T,>({
     updateStepsState(newState);
   }, []);
 
+  const updateStateWithLocalStorage = useCallback(
+    (stepsContextState: StepsContextState<T>) => {
+      const newState = {
+        ...stepsState,
+        generalInfo: {
+          totalSteps: stepsContextState.steps.length,
+          currentProgress: stepsContextState.generalInfo.currentProgress || 0,
+          completedProgress:
+            stepsContextState.generalInfo.completedProgress || 0,
+          canAccessProgress:
+            stepsContextState.generalInfo.canAccessProgress || 0,
+        },
+        steps: stepsContextState.steps.map((step) => ({
+          name: step.name,
+          canAccess: step.canAccess || false,
+          canEdit: step.canEdit || false,
+          isOptional: step.isOptional || false,
+          isCompleted: step.isCompleted || false,
+        })),
+        generalState: stepsContextState.generalState,
+      };
+      setCurrentStep(
+        stepsContextState.steps.filter((step) => step.isCompleted === true)
+          .length || 0,
+      );
+      updateStepsState(newState);
+    },
+    [],
+  );
+
+  const cleanLocalStorage = useCallback(() => {
+    localStorage.removeItem('stepsState');
+  }, []);
+
   const updateGeneralState = useCallback(
     ({
       stepIndex = currentStep,
@@ -48,6 +84,11 @@ export const useStepsActions = <T,>({
         },
       };
       updateStepsState(newState);
+
+      if (config.saveLocalStorage) {
+        localStorage.setItem('stepsState', JSON.stringify(newState));
+      }
+
       return newState;
     },
     [currentStep, stepsState],
@@ -90,6 +131,11 @@ export const useStepsActions = <T,>({
         steps: updatedSteps,
       };
       updateStepsState(newState);
+
+      if (config.saveLocalStorage) {
+        localStorage.setItem('stepsState', JSON.stringify(newState));
+      }
+
       return newState;
     },
     [currentStep, stepsState],
@@ -113,6 +159,11 @@ export const useStepsActions = <T,>({
         },
       ],
     };
+
+    if (config.saveLocalStorage) {
+      localStorage.setItem('stepsState', JSON.stringify(newState));
+    }
+
     updateStepsState(newState);
   }, []);
 
@@ -125,9 +176,11 @@ export const useStepsActions = <T,>({
 
   return {
     setStepsInfo,
+    updateStateWithLocalStorage,
     updateGeneralState,
     updateSteps,
     addError,
     updateConfig,
+    cleanLocalStorage,
   };
 };

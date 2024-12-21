@@ -22,6 +22,7 @@ const initialState: StepsContextState<any> = {
 
 const defaultConfig: ConfigProps = {
   steps: [],
+  saveLocalStorage: true,
 };
 
 export const StepsContext = React.createContext<StepContextProps<any> | null>(
@@ -43,10 +44,14 @@ export const StepsProvider = <T,>({
     updateGeneralState,
     addError,
     updateConfig,
+    updateStateWithLocalStorage,
+    cleanLocalStorage,
   } = useStepsActions<T>({
     updateStepsState,
     stepsState,
     currentStep,
+    setCurrentStep,
+    config,
     setConfig,
   });
 
@@ -77,7 +82,9 @@ export const StepsProvider = <T,>({
         updateGeneralState,
         updateConfig,
         setStepsInfo,
+        updateStateWithLocalStorage,
         updateSteps,
+        cleanLocalStorage,
       }}
     >
       {children}

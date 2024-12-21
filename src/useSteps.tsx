@@ -1,5 +1,9 @@
 import { useContext, useEffect } from 'react';
-import { ConfigProps, StepContextProps } from './types/StepTypes';
+import {
+  ConfigProps,
+  StepContextProps,
+  StepsContextState,
+} from './types/StepTypes';
 import { StepsContext } from './StepsContext';
 
 /**
@@ -56,7 +60,12 @@ export const useSteps = <T,>(config?: ConfigProps) => {
     throw new Error('useStep must be used within a StepProvider');
   }
 
-  const { updateConfig, setStepsInfo, ...stepContext } = context;
+  const {
+    updateConfig,
+    setStepsInfo,
+    updateStateWithLocalStorage,
+    ...stepContext
+  } = context;
 
   useEffect(() => {
     let initialized = false;
@@ -65,6 +74,16 @@ export const useSteps = <T,>(config?: ConfigProps) => {
       updateConfig(config || {});
 
       if (config.steps) setStepsInfo(config.steps);
+
+      if (config?.saveLocalStorage) {
+        const localStorageitem = localStorage.getItem('stepsState');
+        const stepsSavedLocalStorage: StepsContextState<T> | null =
+          localStorageitem ? JSON.parse(localStorageitem) : null;
+
+        if (stepsSavedLocalStorage) {
+          updateStateWithLocalStorage(stepsSavedLocalStorage);
+        }
+      }
       initialized = true;
     }
   }, []);

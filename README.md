@@ -17,10 +17,13 @@ npm i react-stepper-control
 ## Hook Returns
 
 ### `stepsState`
+
 An object containing the complete state of the steps.
 
 ### `generalInfo`
+
 Provides general information about the process, such as:
+
 - `totalSteps`
 - `currentProgress`
 - `completedProgress`
@@ -51,6 +54,7 @@ By default, the boolean values (`canAccess`, `canEdit`, `isOptional`, `isComplet
  ]}
 />
 ```
+
 In this example, we use the HorizontalStepper component provided by the library. You can also create your own custom component, as shown below:
 
 ```bash
@@ -64,6 +68,7 @@ export const Step = ({ steps }: { steps: StepConfiguration[] }) => {
 ```
 
 ### `General State`
+
 The generalState is a user-provided state that can be used to share information between steps. It can be typed using generics. Example:
 
 ```bash
@@ -92,7 +97,9 @@ export const Step1 = () => {
  );
 };
 ```
+
 #### Recommended Typing
+
 Use extends to reuse the state of previous steps:
 
 ```bash
@@ -108,16 +115,20 @@ interface Step3Type extends Step2Type {
  step3: { /* Step 3 values */ };
 }
 ```
+
 Alternatively, you can create separate typings for each step if preferred.
 
 ### `errors`
+
 - A place where step errors are stored.
 - Users can also manually add errors.
 
-*This feature is under development.*
+_This feature is under development._
 
 ### `activeStep`
+
 Provides the settings of the currently active step:
+
 - `name`
 - `canAccess`
 - `canEdit`
@@ -128,11 +139,13 @@ Provides the settings of the currently active step:
 - `isFirstStep`
 
 ### `loading`
+
 Indicates if any asynchronous function (goToStep, onNext, onPrev) is being executed.
 
 ### Functions
 
 ### `updateGeneralState`
+
 Updates the `generalState`
 
 #### Example:
@@ -143,6 +156,7 @@ console.log(updatedState);
 ```
 
 ### `updateSteps`
+
 Updates configurations for one or more `steps`.
 
 #### Example:
@@ -153,7 +167,8 @@ console.log(updatedSteps);
 ```
 
 ### `onNext`
-Moves to the next step. 
+
+Moves to the next step.
 
 Defaults: Marks the current step as `canAccess` and `isCompleted`.
 
@@ -173,6 +188,7 @@ onNext({
 ```
 
 ### `onPrev`
+
 Moves back to the previous step. Works similarly to `onNext`.
 
 #### Example:
@@ -189,6 +205,7 @@ onPrev({
 ```
 
 ### `goToStep`
+
 Navigates to a specific step by index. Works similarly to `onNext`, with the addition of the target step index.
 
 #### Example:
@@ -258,7 +275,7 @@ export const Step = ({ steps }: { steps: StepConfiguration[] }) => {
     }
    },
   }
- } 
+ }
 });
 
  return (
@@ -266,6 +283,7 @@ export const Step = ({ steps }: { steps: StepConfiguration[] }) => {
  );
 };
 ```
+
 `validations.goToStep.canAccess`: Determines whether navigation to a specific step (`goToStep(index)`) is allowed based on the current step's state.
 
 If `true`, it validates that the target step's `canAccess` property is `true` before allowing navigation.
@@ -284,18 +302,57 @@ By default, this validation is always performed.
 The following properties can be configured for each step:
 
 - `canAccess`
-Controls whether the step can be accessed.
+  Controls whether the step can be accessed.
 
 - `canEdit`
-Controls whether the step can be edited.
+  Controls whether the step can be edited.
 
 - `isOptional`
-Indicates if the step is optional.
+  Indicates if the step is optional.
 
 - `isCompleted`
-Marks whether the step is completed.
+  Marks whether the step is completed.
+
+#### Example:
+
+By default, the entire process is saved in localStorage. However, if you prefer this not to happen, you can configure it using the `saveLocalStorage` property.
+
+#### Example:
+
+```bash
+export const Step = ({ steps }: { steps: StepConfiguration[] }) => {
+ const { stepsState } = useSteps({ steps, config: {
+  config: {
+   saveLocalStorage: false
+  }
+ }
+});
+
+ return (
+  // Implement your component using stepsState
+ );
+};
+```
+
+Example using the `HorizontalStepper` or `VerticalStepper`:
+
+```bash
+<HorizontalStepper
+ title="User Registration Process"
+  config={{
+  saveLocalStorage: false,
+  }}
+  steps={[
+   { name: "Step1", component: <Step1 />, canAccess: true },
+   { name: "Step2", component: <Step2 />, canAccess: false, canEdit: true },
+   { name: "Step3", component: <Step3 />, isCompleted: true },
+   { name: "Step4", component: <Step4 />, isOptional: true },
+ ]}
+/>
+```
 
 ## Important
+
 `VerticalStepper` and `HorizontalStepper` are not yet completely usable, it is recommended to create your own component and use the hook to manage
 
 ## Components
@@ -345,6 +402,7 @@ Marks whether the step is completed.
 ### Propriedades
 
 #### `steps`
+
 A list of objects representing each step in the stepper.
 
 `name`: string - Name or label of the step.
@@ -358,9 +416,11 @@ A list of objects representing each step in the stepper.
 `canAccess`: boolean - Defines if the user can access the step (even if it is not the active step).
 
 #### `title`
+
 `string` - Title displayed in the component's header (optional).
 
 #### `config`
+
 `object` - Allows configuration of which properties to set as `true` or `false` for each function using the initial configuration when creating the component, as previously explained.
 
 #### `configStepper`
