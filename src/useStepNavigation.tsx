@@ -9,8 +9,8 @@ import {
 export const useStepNavigation = <T,>({
   currentStep,
   setCurrentStep,
-  stepsState,
-  updateStepsState,
+  stepperState,
+  updateStepperState,
   setLoading,
   addError,
   config,
@@ -26,7 +26,7 @@ export const useStepNavigation = <T,>({
       setLoading(true);
 
       try {
-        let currentState = stepsState;
+        let currentState = stepperState;
 
         const updatedStepsStatus = currentState.steps;
 
@@ -87,21 +87,21 @@ export const useStepNavigation = <T,>({
         };
 
         if (config.saveLocalStorage) {
-          localStorage.setItem('stepsState', JSON.stringify(currentState));
+          localStorage.setItem('stepperState', JSON.stringify(currentState));
         }
 
         if (
           config.saveLocalStorage &&
           currentStep === currentState.generalInfo.totalSteps - 1
         ) {
-          localStorage.removeItem('stepsState');
+          localStorage.removeItem('stepperState');
         }
         
         if (onCompleteStep) {
           await onCompleteStep(currentState);
         }
 
-        updateStepsState(currentState);
+        updateStepperState(currentState);
 
         if (currentStep < currentState.generalInfo.totalSteps - 1) {
           setCurrentStep((prev) => prev + 1);
@@ -113,7 +113,7 @@ export const useStepNavigation = <T,>({
         setLoading(false);
       }
     },
-    [currentStep, stepsState],
+    [currentStep, stepperState],
   );
 
   const onPrev = async (args?: {
@@ -131,7 +131,7 @@ export const useStepNavigation = <T,>({
     setLoading(true);
 
     try {
-      let currentState = stepsState;
+      let currentState = stepperState;
       const updatedStepsStatus = currentState.steps;
 
       updateStepsStatus?.forEach((updateStep) => {
@@ -193,7 +193,7 @@ export const useStepNavigation = <T,>({
         await onCompleteStep(currentState);
       }
 
-      updateStepsState(currentState);
+      updateStepperState(currentState);
       setCurrentStep((prev) => Math.max(prev - 1, 0));
     } catch (error) {
       console.error('Error in goToStep:', error);
@@ -215,7 +215,7 @@ export const useStepNavigation = <T,>({
       const { onCompleteStep, updateStepsStatus, updateGeneralStates } =
         args || {};
 
-      if (nextStep > stepsState.generalInfo.totalSteps - 1) {
+      if (nextStep > stepperState.generalInfo.totalSteps - 1) {
         throw new Error(`The step ${nextStep} does not exist.`);
       }
 
@@ -225,7 +225,7 @@ export const useStepNavigation = <T,>({
 
       if (validationCanAccess) {
         if (nextStep > currentStep) {
-          if (!stepsState.steps[nextStep].canAccess) {
+          if (!stepperState.steps[nextStep].canAccess) {
             addError(
               currentStep,
               `The step ${nextStep} is not accessible because it is not access.`,
@@ -238,7 +238,7 @@ export const useStepNavigation = <T,>({
       setLoading(true);
 
       try {
-        let currentState = stepsState;
+        let currentState = stepperState;
         const updatedStepsStatus = currentState.steps;
 
         updateStepsStatus?.forEach((updateStep) => {
@@ -302,7 +302,7 @@ export const useStepNavigation = <T,>({
           await onCompleteStep(currentState);
         }
 
-        updateStepsState(currentState);
+        updateStepperState(currentState);
         setCurrentStep(nextStep);
       } catch (error) {
         console.error('Error in goToStep:', error);
@@ -310,7 +310,7 @@ export const useStepNavigation = <T,>({
         setLoading(false);
       }
     },
-    [currentStep, stepsState],
+    [currentStep, stepperState],
   );
 
   return { onNext, onPrev, goToStep };

@@ -1,8 +1,8 @@
-# React Stepper Control
+# React Hook Stepper
 
 ## Introduction
 
-This library provides a powerful hook called useSteps to facilitate managing step flows in React applications. This hook offers properties and functions to create, navigate, and manipulate step states in a flexible and scalable way.
+This library provides a powerful hook called useStepper to facilitate managing step flows in React applications. This hook offers properties and functions to create, navigate, and manipulate step states in a flexible and scalable way.
 
 ---
 
@@ -16,7 +16,7 @@ npm i react-stepper-control
 
 ## Hook Returns
 
-### `stepsState`
+### `StepperState`
 
 An object containing the complete state of the steps.
 
@@ -58,11 +58,11 @@ By default, the boolean values (`canAccess`, `canEdit`, `isOptional`, `isComplet
 In this example, we use the HorizontalStepper component provided by the library. You can also create your own custom component, as shown below:
 
 ```bash
-export const Step = ({ steps }: { steps: StepConfiguration[] }) => {
- const { stepsState } = useSteps({ steps });
+export const Step = ({ steps }: { steps: StepConfig[] }) => {
+ const { StepperState } = useStepper({ steps });
 
  return (
-  // Implement your component using stepsState
+  // Implement your component using StepperState
  );
 };
 ```
@@ -80,7 +80,7 @@ interface Step1Type {
 }
 
 export const Step1 = () => {
- const { onNext, onPrev, activeStep } = useSteps<Step1Type>();
+ const { onNext, onPrev, activeStep } = useStepper<Step1Type>();
 
  const handleNext = () =>
   onNext({
@@ -226,8 +226,8 @@ You can configure which properties to set as true or false for each function usi
 #### Example:
 
 ```bash
-export const Step = ({ steps }: { steps: StepConfiguration[] }) => {
- const { stepsState } = useSteps({ steps, config: {
+export const Step = ({ steps }: { steps: StepConfig[] }) => {
+ const { StepperState } = useStepper({ steps, config: {
   validations: {
    goToStep: {
     canAccess: // true or false
@@ -279,7 +279,7 @@ export const Step = ({ steps }: { steps: StepConfiguration[] }) => {
 });
 
  return (
-  // Implement your component using stepsState
+  // Implement your component using StepperState
  );
 };
 ```
@@ -320,8 +320,8 @@ By default, the entire process is saved in localStorage. However, if you prefer 
 #### Example:
 
 ```bash
-export const Step = ({ steps }: { steps: StepConfiguration[] }) => {
- const { stepsState } = useSteps({ steps, config: {
+export const Step = ({ steps }: { steps: StepConfig[] }) => {
+ const { StepperState } = useStepper({ steps, config: {
   config: {
    saveLocalStorage: false
   }
@@ -329,7 +329,7 @@ export const Step = ({ steps }: { steps: StepConfiguration[] }) => {
 });
 
  return (
-  // Implement your component using stepsState
+  // Implement your component using StepperState
  );
 };
 ```

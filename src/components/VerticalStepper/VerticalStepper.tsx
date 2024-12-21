@@ -1,4 +1,4 @@
-import { useSteps } from '../../useSteps';
+import { useStepper } from '../../useStepper';
 import { VerticalStepperProps } from './VerticalStepper.interface';
 import styles from './VerticalStepper.module.css';
 
@@ -51,7 +51,7 @@ export const VerticalStepper = ({
   config,
   configStepper,
 }: VerticalStepperProps) => {
-  const { activeStep, goToStep, stepsState } = useSteps({
+  const { activeStep, goToStep, stepperState } = useStepper({
     steps,
     ...config,
   });
@@ -76,7 +76,7 @@ export const VerticalStepper = ({
       {title && <h2 className={styles.title}>{title}</h2>}
 
       <div className={styles.stepsContainer}>
-        {stepsState.steps?.map((step, index) => {
+        {stepperState.steps?.map((step, index) => {
           const isActive = activeStep.index === index;
 
           const stepClass = `

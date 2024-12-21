@@ -1,11 +1,11 @@
-export interface GeneralInfoProps {
+export interface GeneralInfo {
   totalSteps: number;
   currentProgress: number;
   completedProgress: number;
   canAccessProgress: number;
 }
 
-export interface StepStateProps {
+export interface StepState {
   name: string;
   canAccess: boolean;
   canEdit: boolean;
@@ -13,20 +13,20 @@ export interface StepStateProps {
   isCompleted: boolean;
 }
 
-export interface ActiveStepProps extends StepStateProps {
+export interface ActiveStep extends StepState {
   isLastStep: boolean;
   isFirstStep: boolean;
   index: number;
 }
 
-export interface StepConfiguration extends Partial<StepStateProps> {
+export interface StepConfig extends Partial<StepState> {
   name: string;
   component: React.ReactNode;
 }
 
-export interface StepsContextState<T> {
-  generalInfo: GeneralInfoProps;
-  steps: StepStateProps[];
+export interface StepperState<T> {
+  generalInfo: GeneralInfo;
+  steps: StepState[];
   generalState: T;
   errors?: {
     step: number;
@@ -34,8 +34,8 @@ export interface StepsContextState<T> {
   }[];
 }
 
-export interface StepContextProps<T> {
-  activeStep: ActiveStepProps;
+export interface StepperContext<T> {
+  activeStep: ActiveStep;
   onNext: (args?: {
     onCompleteStep?: StepStateCallback<T>;
     updateStepsStatus?: UpdateStepInput[];
@@ -55,44 +55,44 @@ export interface StepContextProps<T> {
     },
   ) => void;
   loading: boolean;
-  stepsState: StepsContextState<T>;
+  stepperState: StepperState<T>;
   updateGeneralState: (
     args: UpdateGeneralStateInput<T>,
-  ) => StepsContextState<T>;
-  updateConfig: (config: StateConfigProps) => void;
-  updateSteps: (updateSteps: UpdateStepInput[]) => StepsContextState<T>;
-  setStepsInfo: (steps: StepConfiguration[]) => void;
-  updateStateWithLocalStorage: (state: StepsContextState<T>) => void;
+  ) => StepperState<T>;
+  updateConfig: (config: ValidationConfigStepper) => void;
+  updateSteps: (updateSteps: UpdateStepInput[]) => StepperState<T>;
+  setStepsInfo: (steps: StepConfig[]) => void;
+  updateStateWithLocalStorage: (state: StepperState<T>) => void;
   cleanLocalStorage: () => void;
 }
 
 export interface UseStepNavigationProps<T> {
   currentStep: number;
   setCurrentStep: React.Dispatch<React.SetStateAction<number>>;
-  stepsState: StepsContextState<T>;
-  updateStepsState: React.Dispatch<React.SetStateAction<StepsContextState<T>>>;
+  stepperState: StepperState<T>;
+  updateStepperState: React.Dispatch<React.SetStateAction<StepperState<T>>>;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
   addError: (stepIndex: number, message: string) => void;
-  config: ConfigProps;
+  config: StepperConfig;
 }
 
 export interface UseStepsActionsProps<T> {
-  updateStepsState: React.Dispatch<React.SetStateAction<StepsContextState<T>>>;
-  stepsState: StepsContextState<T>;
+  updateStepperState: React.Dispatch<React.SetStateAction<StepperState<T>>>;
+  stepperState: StepperState<T>;
   currentStep: number;
   setCurrentStep: React.Dispatch<React.SetStateAction<number>>;
-  setConfig: React.Dispatch<React.SetStateAction<ConfigProps>>;
-  config: ConfigProps;
+  setConfig: React.Dispatch<React.SetStateAction<StepperConfig>>;
+  config: StepperConfig;
 }
 
 export type StepStateCallback<T> = (
-  state: StepsContextState<T>,
+  state: StepperState<T>,
 ) => Promise<void> | void;
 export type StepStateCallback2<T> = (formData: T) => Promise<void> | void;
 export type UpdateStepInput = {
   stepIndex: number;
   data: Partial<
-    Pick<StepStateProps, 'canAccess' | 'canEdit' | 'isOptional' | 'isCompleted'>
+    Pick<StepState, 'canAccess' | 'canEdit' | 'isOptional' | 'isCompleted'>
   >;
 };
 export type UpdateGeneralStateInput<T> = {
@@ -100,32 +100,32 @@ export type UpdateGeneralStateInput<T> = {
   data: Partial<T>;
 };
 
-export interface ConfigProps extends StateConfigProps {
-  steps: StepConfiguration[];
+export interface StepperConfig extends ValidationConfigStepper {
+  steps: StepConfig[];
 }
 
-export interface StateConfigProps {
+export interface ValidationConfigStepper {
   validations?: {
     goToStep?: {
       canAccess?: boolean;
     };
   };
   next?: {
-    currentStep?: Partial<Omit<StepStateProps, 'name'>>;
-    nextStep?: Partial<Omit<StepStateProps, 'name'>>;
+    currentStep?: Partial<Omit<StepState, 'name'>>;
+    nextStep?: Partial<Omit<StepState, 'name'>>;
   };
   prev?: {
-    currentStep?: Partial<Omit<StepStateProps, 'name'>>;
-    prevStep?: Partial<Omit<StepStateProps, 'name'>>;
+    currentStep?: Partial<Omit<StepState, 'name'>>;
+    prevStep?: Partial<Omit<StepState, 'name'>>;
   };
   goToStep?: {
-    currentStep?: Partial<Omit<StepStateProps, 'name'>>;
-    nextStep?: Partial<Omit<StepStateProps, 'name'>>;
+    currentStep?: Partial<Omit<StepState, 'name'>>;
+    nextStep?: Partial<Omit<StepState, 'name'>>;
   };
   saveLocalStorage?: boolean;
 }
 
-export interface StepProviderProps<T> {
+export interface StepProvider<T> {
   children: React.ReactNode;
-  initialConfig?: ConfigProps;
+  initialConfig?: StepperConfig;
 }

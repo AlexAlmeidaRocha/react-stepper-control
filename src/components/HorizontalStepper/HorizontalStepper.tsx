@@ -1,4 +1,4 @@
-import { useSteps } from '../../useSteps';
+import { useStepper } from '../../useStepper';
 import { HorizontalStepperProps } from './HorizontalStepper.interface';
 import styles from './HorizontalStepper.module.css';
 
@@ -48,7 +48,7 @@ export const HorizontalStepper = ({
   config,
   configStepper,
 }: HorizontalStepperProps) => {
-  const { activeStep, goToStep, stepsState } = useSteps({
+  const { activeStep, goToStep, stepperState } = useStepper({
     steps,
     ...config,
   });
@@ -149,7 +149,7 @@ export const HorizontalStepper = ({
               <div
                 className={styles.progressCompleted}
                 style={{
-                  width: `${stepsState.generalInfo.completedProgress * 100}%`,
+                  width: `${stepperState.generalInfo.completedProgress * 100}%`,
                 }}
               />
             </div>
@@ -159,7 +159,7 @@ export const HorizontalStepper = ({
               <div
                 className={styles.progress}
                 style={{
-                  width: `${stepsState.generalInfo.currentProgress * 100}%`,
+                  width: `${stepperState.generalInfo.currentProgress * 100}%`,
                 }}
               />
             </div>
@@ -168,7 +168,7 @@ export const HorizontalStepper = ({
       )}
       <div className={styles.content}>
         <div className={styles.stepsContainer}>
-          {stepsState.steps?.map((step, index) => {
+          {stepperState.steps?.map((step, index) => {
             const isActive = activeStep.index === index;
 
             const stepClass = `

@@ -1,9 +1,5 @@
 import { useContext, useEffect } from 'react';
-import {
-  ConfigProps,
-  StepContextProps,
-  StepsContextState,
-} from './types/StepTypes';
+import { StepperConfig, StepperContext, StepperState } from './types/StepTypes';
 import { StepsContext } from './StepsContext';
 
 /**
@@ -19,7 +15,7 @@ import { StepsContext } from './StepsContext';
  * Used in components that only consume the context, without managing the steps.
  * You can pass a generic type to type the step state.
  * ```tsx
- * const { onNext, activeStep, stepState } = useSteps<TGeneric>();
+ * const { onNext, activeStep, stepState } = useStepper<TGeneric>();
  *
  * const handleNext = () => {
  *   onNext();
@@ -40,7 +36,7 @@ import { StepsContext } from './StepsContext';
  *   { name: 'Step 1', component: <div>Step 1</div> },
  *   { name: 'Step 2', component: <div>Step 2</div> },
  * ];
- * const { activeStep, goToStep } = useSteps({ steps });
+ * const { activeStep, goToStep } = useStepper({ steps });
  *
  * return (
  *   <div>
@@ -54,8 +50,8 @@ import { StepsContext } from './StepsContext';
  * ```
  */
 
-export const useSteps = <T,>(config?: ConfigProps) => {
-  const context: StepContextProps<T> | null = useContext(StepsContext);
+export const useStepper = <T,>(config?: StepperConfig) => {
+  const context: StepperContext<T> | null = useContext(StepsContext);
   if (!context) {
     throw new Error('useStep must be used within a StepProvider');
   }
@@ -76,9 +72,10 @@ export const useSteps = <T,>(config?: ConfigProps) => {
       if (config.steps) setStepsInfo(config.steps);
 
       if (config?.saveLocalStorage) {
-        const localStorageitem = localStorage.getItem('stepsState');
-        const stepsSavedLocalStorage: StepsContextState<T> | null =
-          localStorageitem ? JSON.parse(localStorageitem) : null;
+        const localStorageitem = localStorage.getItem('stepperState');
+        const stepsSavedLocalStorage: StepperState<T> | null = localStorageitem
+          ? JSON.parse(localStorageitem)
+          : null;
 
         if (stepsSavedLocalStorage) {
           updateStateWithLocalStorage(stepsSavedLocalStorage);

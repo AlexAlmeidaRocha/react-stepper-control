@@ -1,9 +1,9 @@
-import { StateConfigProps, StepConfiguration } from '../../types/StepTypes';
+import { ValidationConfigStepper, StepConfig } from '../../types/StepTypes';
 
 export interface VerticalStepperProps {
-  steps: StepConfiguration[];
+  steps: StepConfig[];
   title?: string;
-  config?: StateConfigProps;
+  config?: ValidationConfigStepper;
   configStepper?: {
     stepContainer?: {
       styles?: React.CSSProperties;

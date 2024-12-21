@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import {
-  StepsContextState,
-  StepContextProps,
-  StepProviderProps,
-  ConfigProps,
+  StepperState,
+  StepperContext,
+  StepProvider,
+  StepperConfig,
 } from './types/StepTypes';
 import { useStepsActions } from './useStepsActions';
 import { useStepNavigation } from './useStepNavigation';
 
-const initialState: StepsContextState<any> = {
+const initialState: StepperState<any> = {
   generalInfo: {
     totalSteps: 0,
     currentProgress: 0,
@@ -20,23 +20,23 @@ const initialState: StepsContextState<any> = {
   errors: [],
 };
 
-const defaultConfig: ConfigProps = {
+const defaultConfig: StepperConfig = {
   steps: [],
   saveLocalStorage: true,
 };
 
-export const StepsContext = React.createContext<StepContextProps<any> | null>(
+export const StepsContext = React.createContext<StepperContext<any> | null>(
   null,
 );
 
 export const StepsProvider = <T,>({
   children,
   initialConfig = defaultConfig,
-}: StepProviderProps<T>) => {
+}: StepProvider<T>) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [stepsState, updateStepsState] = useState(initialState);
-  const [config, setConfig] = useState<ConfigProps>(initialConfig);
+  const [stepperState, updateStepperState] = useState(initialState);
+  const [config, setConfig] = useState<StepperConfig>(initialConfig);
 
   const {
     setStepsInfo,
@@ -47,8 +47,8 @@ export const StepsProvider = <T,>({
     updateStateWithLocalStorage,
     cleanLocalStorage,
   } = useStepsActions<T>({
-    updateStepsState,
-    stepsState,
+    updateStepperState,
+    stepperState,
     currentStep,
     setCurrentStep,
     config,
@@ -58,8 +58,8 @@ export const StepsProvider = <T,>({
   const { onNext, onPrev, goToStep } = useStepNavigation<T>({
     currentStep,
     setCurrentStep,
-    stepsState,
-    updateStepsState,
+    stepperState,
+    updateStepperState,
     setLoading,
     addError,
     config,
@@ -69,16 +69,16 @@ export const StepsProvider = <T,>({
     <StepsContext.Provider
       value={{
         activeStep: {
-          ...stepsState.steps[currentStep],
+          ...stepperState.steps[currentStep],
           index: currentStep,
-          isLastStep: currentStep === stepsState.generalInfo.totalSteps - 1,
+          isLastStep: currentStep === stepperState.generalInfo.totalSteps - 1,
           isFirstStep: currentStep === 0,
         },
         onNext,
         onPrev,
         goToStep,
         loading,
-        stepsState,
+        stepperState,
         updateGeneralState,
         updateConfig,
         setStepsInfo,

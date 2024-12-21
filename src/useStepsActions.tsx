@@ -1,32 +1,32 @@
 import { useCallback } from 'react';
 import {
-  StepsContextState,
+  StepperState,
   UpdateGeneralStateInput,
   UpdateStepInput,
-  StepConfiguration,
-  StepStateProps,
+  StepConfig,
+  StepState,
   UseStepsActionsProps,
-  StateConfigProps,
+  ValidationConfigStepper,
 } from './types/StepTypes';
 
 export const useStepsActions = <T,>({
-  updateStepsState,
-  stepsState,
+  updateStepperState,
+  stepperState,
   currentStep,
   setCurrentStep,
   setConfig,
   config,
 }: UseStepsActionsProps<T>) => {
-  const setStepsInfo = useCallback((steps: StepConfiguration[]) => {
+  const setStepsInfo = useCallback((steps: StepConfig[]) => {
     const newState = {
-      ...stepsState,
+      ...stepperState,
       generalInfo: {
         totalSteps: steps.length,
         currentProgress: 0,
         completedProgress: 0,
         canAccessProgress: 0,
       },
-      steps: steps.map((step: StepConfiguration) => ({
+      steps: steps.map((step: StepConfig) => ({
         name: step.name,
         canAccess: step.canAccess || false,
         canEdit: step.canEdit || false,
@@ -34,69 +34,67 @@ export const useStepsActions = <T,>({
         isCompleted: step.isCompleted || false,
       })),
     };
-    updateStepsState(newState);
+    updateStepperState(newState);
   }, []);
 
   const updateStateWithLocalStorage = useCallback(
-    (stepsContextState: StepsContextState<T>) => {
+    (stepperState: StepperState<T>) => {
       const newState = {
-        ...stepsState,
+        ...stepperState,
         generalInfo: {
-          totalSteps: stepsContextState.steps.length,
-          currentProgress: stepsContextState.generalInfo.currentProgress || 0,
-          completedProgress:
-            stepsContextState.generalInfo.completedProgress || 0,
-          canAccessProgress:
-            stepsContextState.generalInfo.canAccessProgress || 0,
+          totalSteps: stepperState.steps.length,
+          currentProgress: stepperState.generalInfo.currentProgress || 0,
+          completedProgress: stepperState.generalInfo.completedProgress || 0,
+          canAccessProgress: stepperState.generalInfo.canAccessProgress || 0,
         },
-        steps: stepsContextState.steps.map((step) => ({
+        steps: stepperState.steps.map((step) => ({
           name: step.name,
           canAccess: step.canAccess || false,
           canEdit: step.canEdit || false,
           isOptional: step.isOptional || false,
           isCompleted: step.isCompleted || false,
         })),
-        generalState: stepsContextState.generalState,
+        generalState: stepperState.generalState,
       };
       setCurrentStep(
-        stepsContextState.steps.filter((step) => step.isCompleted === true)
-          .length || 0,
+        stepperState.steps.filter((step) => step.isCompleted === true).length ||
+          0,
       );
-      updateStepsState(newState);
+      updateStepperState(newState);
     },
     [],
   );
 
   const cleanLocalStorage = useCallback(() => {
-    localStorage.removeItem('stepsState');
+    localStorage.removeItem('stepperState');
   }, []);
 
   const updateGeneralState = useCallback(
     ({
       stepIndex = currentStep,
       data,
-    }: UpdateGeneralStateInput<T>): StepsContextState<T> => {
-      const newState: StepsContextState<T> = {
-        ...stepsState,
+    }: UpdateGeneralStateInput<T>): StepperState<T> => {
+      const newState: StepperState<T> = {
+        ...stepperState,
         generalState: {
-          ...stepsState.generalState,
+          ...stepperState.generalState,
           ...data,
         },
       };
-      updateStepsState(newState);
+      updateStepperState(newState);
 
       if (config.saveLocalStorage) {
-        localStorage.setItem('stepsState', JSON.stringify(newState));
+        localStorage.setItem('stepperState', JSON.stringify(newState));
       }
 
       return newState;
     },
-    [currentStep, stepsState],
+    [currentStep, stepperState],
   );
 
   const updateSteps = useCallback(
-    (updates: UpdateStepInput[]): StepsContextState<T> => {
-      const validKeys: (keyof StepStateProps)[] = [
+    (updates: UpdateStepInput[]): StepperState<T> => {
+      const validKeys: (keyof StepState)[] = [
         'canAccess',
         'canEdit',
         'isOptional',
@@ -105,7 +103,7 @@ export const useStepsActions = <T,>({
 
       updates.forEach(({ data }) => {
         const isValidData = Object.keys(data).every((key) =>
-          validKeys.includes(key as keyof StepStateProps),
+          validKeys.includes(key as keyof StepState),
         );
 
         if (!isValidData) {
@@ -115,7 +113,7 @@ export const useStepsActions = <T,>({
         }
       });
 
-      const updatedSteps = [...stepsState.steps];
+      const updatedSteps = [...stepperState.steps];
       updates.forEach(({ stepIndex, data }) => {
         if (stepIndex < 0 || stepIndex >= updatedSteps.length) {
           throw new Error(`Invalid stepIndex: ${stepIndex}.`);
@@ -127,32 +125,32 @@ export const useStepsActions = <T,>({
       });
 
       const newState = {
-        ...stepsState,
+        ...stepperState,
         steps: updatedSteps,
       };
-      updateStepsState(newState);
+      updateStepperState(newState);
 
       if (config.saveLocalStorage) {
-        localStorage.setItem('stepsState', JSON.stringify(newState));
+        localStorage.setItem('stepperState', JSON.stringify(newState));
       }
 
       return newState;
     },
-    [currentStep, stepsState],
+    [currentStep, stepperState],
   );
 
   const addError = useCallback((stepIndex: number, message: string) => {
     if (
-      stepsState.errors?.find(
+      stepperState.errors?.find(
         (error) => error.step === stepIndex && error.message === message,
       )
     ) {
       return;
     }
     const newState = {
-      ...stepsState,
+      ...stepperState,
       errors: [
-        ...(stepsState.errors || []),
+        ...(stepperState.errors || []),
         {
           step: stepIndex,
           message,
@@ -161,13 +159,13 @@ export const useStepsActions = <T,>({
     };
 
     if (config.saveLocalStorage) {
-      localStorage.setItem('stepsState', JSON.stringify(newState));
+      localStorage.setItem('stepperState', JSON.stringify(newState));
     }
 
-    updateStepsState(newState);
+    updateStepperState(newState);
   }, []);
 
-  const updateConfig = useCallback((config: StateConfigProps) => {
+  const updateConfig = useCallback((config: ValidationConfigStepper) => {
     setConfig((prev) => ({
       ...prev,
       ...config,
