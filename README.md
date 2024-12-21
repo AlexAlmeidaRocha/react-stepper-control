@@ -16,7 +16,7 @@ npm i react-stepper-control
 
 ## Hook Returns
 
-### `StepperState`
+### `stepperState`
 
 An object containing the complete state of the steps.
 
@@ -59,10 +59,10 @@ In this example, we use the HorizontalStepper component provided by the library.
 
 ```bash
 export const Step = ({ steps }: { steps: StepConfig[] }) => {
- const { StepperState } = useStepper({ steps });
+ const { stepperState } = useStepper({ steps });
 
  return (
-  // Implement your component using StepperState
+  // Implement your component using stepperState
  );
 };
 ```
@@ -227,7 +227,7 @@ You can configure which properties to set as true or false for each function usi
 
 ```bash
 export const Step = ({ steps }: { steps: StepConfig[] }) => {
- const { StepperState } = useStepper({ steps, config: {
+ const { stepperState } = useStepper({ steps, config: {
   validations: {
    goToStep: {
     canAccess: // true or false
@@ -279,7 +279,7 @@ export const Step = ({ steps }: { steps: StepConfig[] }) => {
 });
 
  return (
-  // Implement your component using StepperState
+  // Implement your component using stepperState
  );
 };
 ```
@@ -321,7 +321,7 @@ By default, the entire process is saved in localStorage. However, if you prefer 
 
 ```bash
 export const Step = ({ steps }: { steps: StepConfig[] }) => {
- const { StepperState } = useStepper({ steps, config: {
+ const { stepperState } = useStepper({ steps, config: {
   config: {
    saveLocalStorage: false
   }
@@ -329,7 +329,7 @@ export const Step = ({ steps }: { steps: StepConfig[] }) => {
 });
 
  return (
-  // Implement your component using StepperState
+  // Implement your component using stepperState
  );
 };
 ```
@@ -349,6 +349,35 @@ Example using the `HorizontalStepper` or `VerticalStepper`:
    { name: "Step4", component: <Step4 />, isOptional: true },
  ]}
 />
+```
+
+The localStorage is automatically cleared when onNext is called during the final step. However, if you want to clear it manually, you can use the `cleanLocalStorage` method provided by useStepper.
+
+`cleanLocalStorage` only removes the step-related information.
+
+```bash
+export const Step1 = () => {
+ const { onNext, onPrev, activeStep, cleanLocalStorage } = useStepper();
+
+ const handleCleanLocalStorage = () => {
+  cleanLocalStorage();
+ }
+
+ const handleNext = () =>
+  onNext({
+   updateStepsStatus: [{ stepIndex: 1, data: { canEdit: true } }],
+    onCompleteStep: (data) => console.log("Step 1 completed with data:", data),
+  });
+
+ return (
+  <div>
+   <h1>Step 1</h1>
+   <button onClick={() => onPrev()}>Previous</button>
+   <button onClick={handleNext}>Next</button>
+   <button onClick={handleCleanLocalStorage}>Clean localStorage</button>
+  </div>
+ );
+};
 ```
 
 ## Important
