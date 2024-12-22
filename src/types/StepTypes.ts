@@ -28,10 +28,6 @@ export interface StepperState<T> {
   generalInfo: GeneralInfo;
   steps: StepState[];
   generalState: T;
-  errors?: {
-    step: number;
-    message: string;
-  }[];
 }
 
 export interface StepperContext<T> {
@@ -56,9 +52,7 @@ export interface StepperContext<T> {
   ) => void;
   loading: boolean;
   stepperState: StepperState<T>;
-  updateGeneralState: (
-    args: UpdateGeneralStateInput<T>,
-  ) => StepperState<T>;
+  updateGeneralState: (args: UpdateGeneralStateInput<T>) => StepperState<T>;
   updateConfig: (config: ValidationConfigStepper) => void;
   updateSteps: (updateSteps: UpdateStepInput[]) => StepperState<T>;
   setStepsInfo: (steps: StepConfig[]) => void;
@@ -72,7 +66,6 @@ export interface UseStepNavigationProps<T> {
   stepperState: StepperState<T>;
   updateStepperState: React.Dispatch<React.SetStateAction<StepperState<T>>>;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
-  addError: (stepIndex: number, message: string) => void;
   config: StepperConfig;
 }
 

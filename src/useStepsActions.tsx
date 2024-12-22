@@ -139,31 +139,53 @@ export const useStepsActions = <T,>({
     [currentStep, stepperState],
   );
 
-  const addError = useCallback((stepIndex: number, message: string) => {
-    if (
-      stepperState.errors?.find(
-        (error) => error.step === stepIndex && error.message === message,
-      )
-    ) {
-      return;
-    }
-    const newState = {
-      ...stepperState,
-      errors: [
-        ...(stepperState.errors || []),
-        {
-          step: stepIndex,
-          message,
-        },
-      ],
-    };
+  // const addError = useCallback(
+  //   (stepIndex: number, message: string) => {
+  //     if (
+  //       stepperState.errors?.find(
+  //         (error) => error.step === stepIndex && error.message === message,
+  //       )
+  //     ) {
+  //       return;
+  //     }
+  //     const newState = {
+  //       ...stepperState,
+  //       errors: [
+  //         ...(stepperState.errors || []),
+  //         {
+  //           step: stepIndex,
+  //           message,
+  //         },
+  //       ],
+  //     };
 
-    if (config.saveLocalStorage) {
-      localStorage.setItem('stepperState', JSON.stringify(newState));
-    }
+  //     if (config.saveLocalStorage) {
+  //       localStorage.setItem('stepperState', JSON.stringify(newState));
+  //     }
 
-    updateStepperState(newState);
-  }, []);
+  //     updateStepperState(newState);
+  //   },
+  //   [currentStep, stepperState],
+  // );
+
+  // const removeError = useCallback(
+  //   (stepIndex: number) => {
+  //     updateStepperState((prevState) => {
+  //       const newState = {
+  //         ...prevState,
+  //         errors:
+  //           prevState.errors?.filter((error) => error.step !== stepIndex),
+  //       };
+
+  //       if (config.saveLocalStorage) {
+  //         localStorage.setItem('stepperState', JSON.stringify(newState));
+  //       }
+
+  //       return newState; // Retornando o novo estado para ser aplicado corretamente
+  //     });
+  //   },
+  //   [currentStep, stepperState],
+  // );
 
   const updateConfig = useCallback((config: ValidationConfigStepper) => {
     setConfig((prev) => ({
@@ -177,7 +199,6 @@ export const useStepsActions = <T,>({
     updateStateWithLocalStorage,
     updateGeneralState,
     updateSteps,
-    addError,
     updateConfig,
     cleanLocalStorage,
   };

@@ -1,6 +1,6 @@
 {
   "name": "react-stepper-control",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "description": "A simple and customizable multi-step stepper control for React",
   "main": "dist/index.cjs.js",
   "module": "dist/index.esm.js",

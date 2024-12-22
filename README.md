@@ -1,4 +1,4 @@
-# React Hook Stepper
+# React Stepper Control
 
 ## Introduction
 
@@ -67,7 +67,7 @@ export const Step = ({ steps }: { steps: StepConfig[] }) => {
 };
 ```
 
-### `General State`
+### `generalState`
 
 The generalState is a user-provided state that can be used to share information between steps. It can be typed using generics. Example:
 
@@ -80,7 +80,9 @@ interface Step1Type {
 }
 
 export const Step1 = () => {
- const { onNext, onPrev, activeStep } = useStepper<Step1Type>();
+ const { onNext, onPrev, activeStep, stepperState } = useStepper<Step1Type>();
+
+ console.log(stepperState.generalState.step1)
 
  const handleNext = () =>
   onNext({
@@ -117,13 +119,6 @@ interface Step3Type extends Step2Type {
 ```
 
 Alternatively, you can create separate typings for each step if preferred.
-
-### `errors`
-
-- A place where step errors are stored.
-- Users can also manually add errors.
-
-_This feature is under development._
 
 ### `activeStep`
 

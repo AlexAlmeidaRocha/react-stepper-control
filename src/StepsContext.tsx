@@ -17,7 +17,6 @@ const initialState: StepperState<any> = {
   },
   steps: [],
   generalState: {},
-  errors: [],
 };
 
 const defaultConfig: StepperConfig = {
@@ -42,7 +41,6 @@ export const StepsProvider = <T,>({
     setStepsInfo,
     updateSteps,
     updateGeneralState,
-    addError,
     updateConfig,
     updateStateWithLocalStorage,
     cleanLocalStorage,
@@ -61,7 +59,6 @@ export const StepsProvider = <T,>({
     stepperState,
     updateStepperState,
     setLoading,
-    addError,
     config,
   });
 
